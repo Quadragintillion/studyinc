@@ -9,7 +9,7 @@
 }
 
 .styled-background {
-  @apply bg-slate-800 outline-slate-700 outline-2;
+  @apply bg-slate-200 outline-slate-100 dark:bg-slate-800 dark:outline-slate-700 outline-2;
 }
 
 .full-height {
@@ -19,7 +19,7 @@
 /* Icon buttons work different from normal buttons since the BG is normally hidden by the icon */
 
 .styled-icon-btn {
-  @apply outline-slate-700;
+  @apply not-dark:invert outline-slate-700;
 }
 
 .styled-btn, .styled-icon-btn {
