@@ -5,6 +5,6 @@ import BasePage from '../BasePage.vue';
 
 <template>
   <BasePage>
-    <p>Hello world!</p>
+    <p class="m-5">Hello world!</p>
   </BasePage>
 </template>

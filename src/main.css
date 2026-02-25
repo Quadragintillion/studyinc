@@ -17,6 +17,15 @@
 }
 
 /* Icon buttons work different from normal buttons since the BG is normally hidden by the icon */
+
+.styled-icon-btn {
+  @apply outline-slate-700;
+}
+
+.styled-btn, .styled-icon-btn {
+  @apply transition-all duration-200 ease-out;
+}
+
 .styled-btn, .styled-icon-btn:hover {
   @apply bg-blue-900 outline-2 outline-slate-700;
 }
