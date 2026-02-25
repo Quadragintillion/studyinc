@@ -1,11 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import ToolsPage from './components/pages/tools/ToolsPage.vue';
+import Sidebar from './components/sidebar/Sidebar.vue';
+
+</script>
 
 <template>
-  <h1>You did it!</h1>
-  <p>
-    Visit <a href="https://vuejs.org/" target="_blank" rel="noopener">vuejs.org</a> to read the
-    documentation
-  </p>
+  <div class="flex m-3">
+    <Sidebar class="mr-3" />
+    <ToolsPage />
+  </div>
 </template>
 
 <style scoped></style>

@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+/* Recycled colors */
+:root {
+  --btn-bg: theme(colors.blue.950);
+  --btn-outline: theme(colors.slate.700);
+  --btn-bg-selected: theme(colors.sky.600);
+  --btn-outline-selected: theme(colors.slate.400);
+}
+
+.styled-background {
+  @apply bg-slate-800 outline-slate-700 outline-2;
+}
+
+.full-height {
+  @apply h-[calc(100vh-2rem)];
+}
+
+/* Icon buttons work different from normal buttons since the BG is normally hidden by the icon */
+.styled-btn, .styled-icon-btn:hover {
+  @apply bg-blue-900 outline-2 outline-slate-700;
+}
+
+.styled-btn:hover, .styled-btn-selected {
+  @apply bg-blue-500;
+}
