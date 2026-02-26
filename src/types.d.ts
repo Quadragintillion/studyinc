@@ -1,4 +1,4 @@
-export type Tool = {
+type Tool = {
   id: number,
   name: String,
   categories: String[],

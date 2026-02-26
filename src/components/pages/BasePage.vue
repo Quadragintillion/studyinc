@@ -16,7 +16,7 @@ onMounted(() => {
 <template>
   <div id="page" class="styled-background full-height w-full rounded-3xl relative overflow-hidden">
     <Transition name="fade">
-      <div v-if="loading" class="absolute inset-0 z-50 flex items-center justify-center styled-background rounded-3xl">
+      <div v-if="loading" class="absolute inset-0 z-40 flex items-center justify-center styled-background rounded-3xl">
         <LoadingIcon />
       </div>
     </Transition>

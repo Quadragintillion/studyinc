@@ -1,24 +1,25 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import type { Tool } from '@/types'
 
-export const useToolsStore = defineStore('tools', () => {
+export const useToolStore = defineStore('tools', () => {
   const tools = ref<Tool[]>([])
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function fetchTools() {
+  async function fetchTools(): Promise<Tool[]> {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch('/api/tools/index.json')
+      const res = await fetch('https://dazzlbit.com/api/res/index.json')
       if (!res.ok) throw new Error(`${res.status}`)
-      tools.value = await res.json()
+      tools.value = await res.json() as Tool[]
     } catch (e) {
       error.value = (e as Error).message
     } finally {
       loading.value = false
     }
+
+    return tools.value
   }
 
   function format(thing: string): string {
