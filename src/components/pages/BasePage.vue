@@ -1,16 +1,20 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import LoadingIcon from '../misc/LoadingIcon.vue'
 
-const loading = ref(true)
+const props = defineProps<{ loading?: boolean }>()
+
+const pageReady = ref(false)
 
 onMounted(() => {
   if (document.readyState === 'complete') {
-    loading.value = false
+    pageReady.value = true
   } else {
-    window.addEventListener('load', () => { loading.value = false }, { once: true })
+    window.addEventListener('load', () => { pageReady.value = true }, { once: true })
   }
 })
+
+const loading = computed(() => !pageReady.value || (props.loading ?? false))
 </script>
 
 <template>
