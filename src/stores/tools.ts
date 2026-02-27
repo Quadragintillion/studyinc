@@ -10,7 +10,7 @@ export const useToolStore = defineStore('tools', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch('https://dazzlbit.com/api/res/index.json')
+      const res = await fetch('/api/res/index.json')
       if (!res.ok) throw new Error(`${res.status}`)
       tools.value = await res.json() as Tool[]
     } catch (e) {
