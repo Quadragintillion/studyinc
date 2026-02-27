@@ -6,6 +6,6 @@
 
 <template>
   <div id="card-holder" class="m-5">
-    <img class="w-40 rounded-xl drop-shadow-slate-950 shadow-md" :src="`https://dazzlbit.com/api/res/thumbs/${toolId}/vert.jpg`">
+    <img class="w-40 rounded-xl drop-shadow-slate-900 drop-shadow-xl cursor-pointer" :src="`https://dazzlbit.com/api/res/thumbs/${toolId}/vert.jpg`">
   </div>
 </template>
