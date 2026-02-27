@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import { usePageStore } from '@/stores/page';
 
-  const props = defineProps({
-    name: String,
-    iconPath: String,
-    pageId: String
-  })
+const props = defineProps({
+  name: String,
+  iconPath: String,
+  pageId: String
+})
 
-  const pageStore = usePageStore()
+const pageStore = usePageStore()
 </script>
 
 <template>

@@ -4,9 +4,13 @@ import LoadingIcon from '../misc/LoadingIcon.vue'
 
 const props = defineProps<{ loading?: boolean }>()
 
-const pageReady = ref(false)
+const pageReady = ref(props.loading === false)
 
 onMounted(() => {
+  if (props.loading === false) {
+    pageReady.value = true
+    return
+  }
   if (document.readyState === 'complete') {
     pageReady.value = true
   } else {

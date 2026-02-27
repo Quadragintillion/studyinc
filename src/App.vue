@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import AccountPage from './components/pages/tools/AccountPage.vue';
-import NotesPage from './components/pages/tools/NotesPage.vue';
-import SettingsPage from './components/pages/tools/SettingsPage.vue';
+import AccountPage from './components/pages/AccountPage.vue';
+import NotesPage from './components/pages/NotesPage.vue';
+import SettingsPage from './components/pages/SettingsPage.vue';
 import ToolsPage from './components/pages/tools/ToolsPage.vue'
-import TutoringPage from './components/pages/tools/TutoringPage.vue';
-import VideosPage from './components/pages/tools/VideosPage.vue';
+import TutoringPage from './components/pages/TutoringPage.vue';
+import VideosPage from './components/pages/VideosPage.vue';
 import Sidebar from './components/sidebar/Sidebar.vue'
 import { usePageStore } from './stores/page';
 

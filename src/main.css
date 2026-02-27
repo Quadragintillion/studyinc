@@ -1,13 +1,5 @@
 @import 'tailwindcss';
 
-/* Recycled colors */
-:root {
-  --btn-bg: theme(colors.blue.950);
-  --btn-outline: theme(colors.slate.700);
-  --btn-bg-selected: theme(colors.sky.600);
-  --btn-outline-selected: theme(colors.slate.400);
-}
-
 .styled-background {
   @apply bg-slate-200 outline-slate-100 dark:bg-slate-800 dark:outline-slate-700 outline-2;
 }
@@ -32,4 +24,9 @@
 
 .styled-btn:hover, .styled-btn-selected {
   @apply bg-blue-500;
+}
+
+
+.search-bar {
+  @apply bg-slate-900 rounded-full;
 }

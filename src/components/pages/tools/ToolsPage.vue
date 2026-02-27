@@ -2,18 +2,34 @@
 import { ref, computed, onMounted } from 'vue';
 import { useToolStore } from '@/stores/tools';
 import BasePage from '../BasePage.vue';
-import ToolCard from './ToolCard.vue';
+import ToolCardGroup from './ToolCardGroup.vue';
+import SearchBar from '@/components/misc/SearchBar.vue';
 
-const tools = useToolStore()
+const toolStore = useToolStore()
 
 const imagesLoaded = ref(0)
-const loading = computed(() => tools.loading || imagesLoaded.value < tools.tools.length)
+const loading = computed(() => toolStore.loading || imagesLoaded.value < toolStore.tools.length)
 
-onMounted(() => tools.fetchTools())
+onMounted(() => toolStore.fetchTools())
 </script>
 
 <template>
-  <BasePage :loading="loading">
-    <ToolCard v-for="tool of tools.tools" :key="tool.id" :tool-id="tool.id" @loaded="imagesLoaded++" />
+  <BasePage class="p-5" :loading="loading">
+    <div name="search-area" class="flex gap-3 mb-3">
+      <img src="/icons/search.svg" class="w-6">
+      <SearchBar />
+    </div>
+    <h1 class="tool-section">Featured</h1>
+    <ToolCardGroup :tools="toolStore.tools.filter((tool: Tool) => tool.isFeatured)" @loaded="imagesLoaded++" />
+    <h1 class="tool-section">All Tools</h1>
+    <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
   </BasePage>
 </template>
+
+<style scoped>
+  @reference "../../../main.css";
+
+  .tool-section {
+    @apply text-3xl font-bold mb-3 text-center;
+  }
+</style>
