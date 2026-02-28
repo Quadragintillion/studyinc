@@ -8,6 +8,7 @@
     "build": "run-p type-check \"build-only {@}\" --",
     "preview": "vite preview",
     "build-only": "vite build",
+    "deploy": "npm run build && rsync -av --exclude='api' dist/ dragin@dragin.xyz:/var/www/dazzlbit.com",
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
