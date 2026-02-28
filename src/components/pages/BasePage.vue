@@ -22,7 +22,7 @@ const loading = computed(() => !pageReady.value || (props.loading ?? false))
 </script>
 
 <template>
-  <div id="page" class="styled-background full-height w-full rounded-3xl relative overflow-hidden">
+  <div id="page" class="styled-background full-height w-full rounded-3xl relative overflow-y-auto">
     <Transition name="fade">
       <div v-if="loading" class="absolute inset-0 z-40 flex items-center justify-center styled-background rounded-3xl">
         <LoadingIcon />
