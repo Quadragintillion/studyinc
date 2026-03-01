@@ -4,13 +4,32 @@ import { useToolStore } from '@/stores/tools';
 import BasePage from '../BasePage.vue';
 import ToolCardGroup from './ToolCardGroup.vue';
 import SearchBar from '@/components/misc/SearchBar.vue';
+import Fuse from 'fuse.js';
 
 const toolStore = useToolStore()
 
 const imagesLoaded = ref(0)
 const loading = computed(() => toolStore.loading || imagesLoaded.value < toolStore.tools.length)
+const query = ref('')
 
 onMounted(() => toolStore.fetchTools())
+
+const fuse = computed(() => new Fuse(toolStore.tools, {
+  keys: [
+    { name: 'title', weight: 2 },
+    { name: 'category', weight: 1 },
+    { name: 'searchTerms', weight: 1.5 }
+  ],
+  threshold: 0.4
+}))
+
+const searchResults = computed(() =>
+  query.value.trim()
+    ? fuse.value.search(query.value).map(r => r.item)
+    : null
+)
+
+const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool.isFeatured))
 </script>
 
 <template>
@@ -18,14 +37,19 @@ onMounted(() => toolStore.fetchTools())
   <BasePage v-if="!toolStore.activeTool" class="p-5" :loading="loading">
       <div name="search-area" class="flex gap-3 mb-3">
         <img src="/icons/search.svg" class="w-6">
-        <SearchBar />
+        <SearchBar @textChanged="query = $event" />
       </div>
 
-      <h1 class="tool-section">Featured</h1>
-      <ToolCardGroup :tools="toolStore.tools.filter((tool: Tool) => tool.isFeatured)" @loaded="imagesLoaded++" />
-      
-      <h1 class="tool-section">All Tools</h1>
-      <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
+      <template v-if="searchResults">
+        <ToolCardGroup :tools="searchResults" @loaded="imagesLoaded++" />
+      </template>
+      <template v-else>
+        <h1 class="tool-section">Featured</h1>
+        <ToolCardGroup :tools="featuredTools" @loaded="imagesLoaded++" />
+
+        <h1 class="tool-section">All Tools</h1>
+        <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
+      </template>
   </BasePage>
 
   <!-- Tool view -->
