@@ -18,7 +18,7 @@ export const useToolStore = defineStore('tools', () => {
       tools.value = raw.map(t => ({
         ...t,
         aspectRatio: t.aspectRatio ? eval(t.aspectRatio) : t.aspectRatio
-      }))
+      })).filter((tool) => tool.id > -100)
 
       tools.value.sort((a: Tool, b: Tool) => {
         if (a.id < 0 && a.id < b.id) return -1
