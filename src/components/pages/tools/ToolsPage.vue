@@ -8,14 +8,27 @@ import Fuse from 'fuse.js';
 import FancyText from '@/components/misc/FancyText.vue';
 import TopBarButton from './TopBarButton.vue';
 import { formatText } from '@/composables/format';
+import { useFullscreen } from '@vueuse/core';
 
 const toolStore = useToolStore()
+
+const iframeContainer = ref<HTMLElement | null>(null)
 
 const imagesLoaded = ref(0)
 const loading = computed(() => toolStore.loading || imagesLoaded.value < toolStore.tools.length)
 const query = ref('')
 
 onMounted(() => toolStore.fetchTools())
+
+function openExternal() {
+  const w = window.open()!
+  const iframe = w.document.createElement('iframe')
+  iframe.style.width = "100%";
+  iframe.style.height = "100%";
+  iframe.style.border = "none";
+  iframe.src = `/api/res/${toolStore.activeTool!.id}/index.html`
+  w.document.body.appendChild(iframe)
+}
 
 const fuse = computed(() => new Fuse(toolStore.tools, {
   keys: [
@@ -63,22 +76,24 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         imagesLoaded = 0
       }" />
       <FancyText :content="formatText(toolStore.activeTool.title)" :size="20" />
+      <TopBarButton iconPath="/icons/fullscreen.svg" @click="useFullscreen(iframeContainer)" />
+      <TopBarButton iconPath="/icons/external.svg" @click="openExternal" />
     </div>
     <hr class="m-0">
-    <div class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+    <div ref="iframeContainer" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
       <iframe
-        v-if="toolStore.activeTool"
-        :key="toolStore.activeTool.id"
-        :src="`/api/res/${toolStore.activeTool.id}/index.html`"
-        class="border-none w-full h-full"
-        :style="{
-          aspectRatio: toolStore.activeTool.aspectRatio,
-          maxHeight: '100%',
-          maxWidth: '100%',
-          width: `min(100%, calc(100vh * ${toolStore.activeTool.aspectRatio}))`,
-          height: `min(100%, calc(100vw / ${toolStore.activeTool.aspectRatio}))`
-        }"
-      />
+          v-if="toolStore.activeTool"
+          :key="toolStore.activeTool.id"
+          :src="`/api/res/${toolStore.activeTool.id}/index.html`"
+          class="border-none w-full h-full"
+          :style="{
+            aspectRatio: toolStore.activeTool.aspectRatio,
+            maxHeight: '100%',
+            maxWidth: '100%',
+            width: `min(100%, calc(100vh * ${toolStore.activeTool.aspectRatio}))`,
+            height: `min(100%, calc(100vw / ${toolStore.activeTool.aspectRatio}))`
+          }"
+        />
     </div>
   </BasePage>
 </template>
