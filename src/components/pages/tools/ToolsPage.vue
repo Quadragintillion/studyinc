@@ -82,18 +82,18 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
     <hr class="m-0">
     <div ref="iframeContainer" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
       <iframe
-          v-if="toolStore.activeTool"
-          :key="toolStore.activeTool.id"
-          :src="`/api/res/${toolStore.activeTool.id}/index.html`"
-          class="border-none w-full h-full"
-          :style="{
-            aspectRatio: toolStore.activeTool.aspectRatio,
-            maxHeight: '100%',
-            maxWidth: '100%',
-            width: `min(100%, calc(100vh * ${toolStore.activeTool.aspectRatio}))`,
-            height: `min(100%, calc(100vw / ${toolStore.activeTool.aspectRatio}))`
-          }"
-        />
+        v-if="toolStore.activeTool"
+        :key="toolStore.activeTool.id"
+        :src="`/api/res/${toolStore.activeTool.id}/index.html`"
+        class="border-none w-full h-full"
+        :style="{
+          aspectRatio: toolStore.activeTool.aspectRatio,
+          maxHeight: '100%',
+          maxWidth: '100%',
+          width: `min(100%, calc(100vh * ${toolStore.activeTool.aspectRatio}))`,
+          height: `min(100%, calc(100vw / ${toolStore.activeTool.aspectRatio}))`
+        }"
+      />
     </div>
   </BasePage>
 </template>
