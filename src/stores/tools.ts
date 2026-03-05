@@ -22,8 +22,6 @@ export const useToolStore = defineStore('tools', () => {
       tools.value.sort((a: Tool, b: Tool) => {
         return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1 // sort alphabetically
       })
-
-      console.log(tools)
     } catch (e) {
       error.value = (e as Error).message
     } finally {
@@ -33,19 +31,11 @@ export const useToolStore = defineStore('tools', () => {
     return tools.value
   }
 
-  // encodes using xor
-  function format(thing: string): string {
-    const key = Uint8Array.from('doof', c => c.charCodeAt(0))
-    const bytes = Uint8Array.from(atob(thing), c => c.charCodeAt(0))
-    const out = bytes.map((b, i) => b ^ (key[i % key.length] ?? 0))
-    return new TextDecoder().decode(out)
-  }
-
   const activeTool = ref<Tool | null>(null)
 
   function openTool(id: number | null) {
     activeTool.value = id === null ? null : (tools.value.find(t => t.id === id) ?? null)
   }
 
-  return { tools, loading, error, fetchTools, format, activeTool, openTool }
+  return { tools, loading, error, fetchTools, activeTool, openTool }
 })

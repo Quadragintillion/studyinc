@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+hr {
+  @apply border border-slate-100 dark:border-slate-700;
+}
+
 .styled-background {
   @apply bg-slate-200 outline-slate-100 dark:bg-slate-800 dark:outline-slate-700 outline-2;
 }

@@ -5,6 +5,8 @@ import BasePage from '../BasePage.vue';
 import ToolCardGroup from './ToolCardGroup.vue';
 import SearchBar from '@/components/misc/SearchBar.vue';
 import Fuse from 'fuse.js';
+import FancyText from '@/components/misc/FancyText.vue';
+import TopBarButton from './TopBarButton.vue';
 
 const toolStore = useToolStore()
 
@@ -54,13 +56,14 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
 
   <!-- Tool view -->
   <BasePage v-else class="flex flex-col">
-    <div class="flex items-center gap-2 px-3 py-2 bg-base shrink-0">
-      <img src="/icons/exit.svg" class="w-4 cursor-pointer" @click="() => {
+    <div class="flex items-center gap-2 px-3 py-2 bg-base shrink-0 max-h-10">
+      <TopBarButton iconPath="/icons/exit.svg" @click="() => {
         toolStore.openTool(null)
         imagesLoaded = 0
-      }">
-      <span class="text-sm font-semibold text-white/80">{{ toolStore.activeTool?.title }}</span>
+      }" />
+      <FancyText content="test" :size="20" />
     </div>
+    <hr class="m-0">
     <div class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
       <iframe
         v-if="toolStore.activeTool"
