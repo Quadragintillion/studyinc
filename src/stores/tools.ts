@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { formatText } from '@/composables/format'
 
 export const useToolStore = defineStore('tools', () => {
   const tools = ref<Tool[]>([])
@@ -20,7 +21,7 @@ export const useToolStore = defineStore('tools', () => {
       }))
 
       tools.value.sort((a: Tool, b: Tool) => {
-        return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1 // sort alphabetically
+        return formatText(a.title).toLowerCase() < formatText(b.title).toLowerCase() ? -1 : 1 // sort alphabetically
       })
     } catch (e) {
       error.value = (e as Error).message
