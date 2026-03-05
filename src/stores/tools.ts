@@ -21,6 +21,7 @@ export const useToolStore = defineStore('tools', () => {
       }))
 
       tools.value.sort((a: Tool, b: Tool) => {
+        if (a.id < 0 && a.id < b.id) return -1
         return formatText(a.title).toLowerCase() < formatText(b.title).toLowerCase() ? -1 : 1 // sort alphabetically
       })
     } catch (e) {
