@@ -1,6 +1,6 @@
 type Tool = {
   id: number,
-  name: String,
+  title: String,
   searchTerms: String[],
   isFeatured: boolean,
   aspectRatio: number

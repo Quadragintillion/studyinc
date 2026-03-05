@@ -55,8 +55,11 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
   <!-- Tool view -->
   <BasePage v-else class="flex flex-col">
     <div class="flex items-center gap-2 px-3 py-2 bg-base shrink-0">
-      <img src="/icons/exit.svg" class="w-4 cursor-pointer" @click="toolStore.openTool(null)">
-      <span class="text-sm font-semibold text-white/80">{{ toolStore.activeTool?.name }}</span>
+      <img src="/icons/exit.svg" class="w-4 cursor-pointer" @click="() => {
+        toolStore.openTool(null)
+        imagesLoaded = 0
+      }">
+      <span class="text-sm font-semibold text-white/80">{{ toolStore.activeTool?.title }}</span>
     </div>
     <div class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
       <iframe

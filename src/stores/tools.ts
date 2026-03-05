@@ -13,10 +13,17 @@ export const useToolStore = defineStore('tools', () => {
       const res = await fetch('/api/res/index.json')
       if (!res.ok) throw new Error(`${res.status}`)
       const raw = await res.json() as any[] // generically type so we can change aspectRatio to a number
+
       tools.value = raw.map(t => ({
         ...t,
         aspectRatio: t.aspectRatio ? eval(t.aspectRatio) : t.aspectRatio
       }))
+
+      tools.value.sort((a: Tool, b: Tool) => {
+        return a.title.toLowerCase() < b.title.toLowerCase() ? -1 : 1 // sort alphabetically
+      })
+
+      console.log(tools)
     } catch (e) {
       error.value = (e as Error).message
     } finally {
