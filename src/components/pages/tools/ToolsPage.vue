@@ -7,6 +7,7 @@ import SearchBar from '@/components/misc/SearchBar.vue';
 import Fuse from 'fuse.js';
 import FancyText from '@/components/misc/FancyText.vue';
 import TopBarButton from './TopBarButton.vue';
+import { formatText } from '@/composables/format';
 
 const toolStore = useToolStore()
 
@@ -61,7 +62,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         toolStore.openTool(null)
         imagesLoaded = 0
       }" />
-      <FancyText content="test" :size="20" />
+      <FancyText :content="formatText(toolStore.activeTool.title)" :size="20" />
     </div>
     <hr class="m-0">
     <div class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
