@@ -3,5 +3,6 @@ type Tool = {
   title: string!,
   searchTerms: string[],
   isFeatured: boolean,
-  aspectRatio: number
+  aspectRatio: number,
+  externalLink?: String // if it's a link to something else e.g. socials
 }

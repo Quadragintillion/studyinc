@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { useToolStore } from '@/stores/tools';
 
-const props = defineProps({ toolId: Number })
+const props = defineProps({ toolId: Number, externalLink: String })
 const emit = defineEmits(['loaded'])
 
 const toolStore = useToolStore()
+
+function openExternal() {
+  window.open(props.externalLink!)
+}
 </script>
 
 <template>
@@ -13,6 +17,9 @@ const toolStore = useToolStore()
     :src="`/api/res/thumbs/${toolId}/vert.jpg`"
     @load="emit('loaded')"
     @error="emit('loaded')"
-    @click="toolStore.openTool(toolId ?? null)"
+    @click="() => {
+      if (externalLink) openExternal()
+      else toolStore.openTool(toolId ?? null)
+    }"
   >
 </template>
