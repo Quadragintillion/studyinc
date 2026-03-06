@@ -31,8 +31,6 @@ export const useToolStore = defineStore('tools', () => {
       loading.value = false
     }
 
-    console.log(tools.value)
-
     return tools.value
   }
 
