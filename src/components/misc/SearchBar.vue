@@ -10,6 +10,6 @@
 
 <template>
   <div name="search-wrapper">
-    <input v-model="text" @input="onInput" placeholder="Search..." class="bg-slate-900 w-50 h-10 p-5 rounded-full focus:outline-2 focus:outline-sky-400">
+    <input v-model="text" @input="onInput" placeholder="Search..." class="bg-slate-100 dark:bg-slate-900 w-50 h-10 p-5 rounded-full focus:outline-2 focus:outline-sky-400">
   </div>
 </template>

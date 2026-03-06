@@ -1,5 +1,9 @@
 @import 'tailwindcss';
 
+* {
+  @apply text-slate-800 dark:text-white;
+}
+
 hr {
   @apply border border-slate-100 dark:border-slate-700;
 }
@@ -15,7 +19,11 @@ hr {
 /* Icon buttons work different from normal buttons since the BG is normally hidden by the icon */
 
 .styled-icon-btn {
-  @apply not-dark:invert outline-slate-700;
+  @apply outline-slate-700;
+}
+
+.styled-icon-btn img {
+  @apply not-dark:invert;
 }
 
 .styled-btn, .styled-icon-btn {
