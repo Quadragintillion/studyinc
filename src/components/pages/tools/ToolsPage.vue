@@ -73,18 +73,16 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         <SearchBar @textChanged="query = $event" />
       </div>
 
-      <template v-if="searchResults">
-        <ToolCardGroup :tools="searchResults" @loaded="imagesLoaded++" />
-      </template>
+      <ToolCardGroup v-if="searchResults" :tools="searchResults" @loaded="imagesLoaded++" />
       <template v-else>
         <h1 class="tool-section">Featured</h1>
         <ToolCardGroup :tools="featuredTools" @loaded="imagesLoaded++" />
 
         <h1 class="tool-section">All Tools</h1>
         <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
+        
+        <p class="text-xl text-center">online users: {{ onlineUsers }}</p>
       </template>
-
-      <p class="text-xl text-center">online users: {{ onlineUsers }}</p>
   </BasePage>
 
   <!-- Tool view -->
