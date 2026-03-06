@@ -51,6 +51,17 @@ const searchResults = computed(() =>
     : null
 )
 
+const onlineUsers = ref('loading...')
+
+onMounted(async () => {
+  try {
+    const response = await fetch('/api/olu')
+    onlineUsers.value = await response.text()
+  } catch (error) {
+    onlineUsers.value = 'unknown'
+  }
+})
+
 const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool.isFeatured))
 </script>
 
@@ -72,6 +83,8 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         <h1 class="tool-section">All Tools</h1>
         <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
       </template>
+
+      <p class="text-xl text-center">online users: {{ onlineUsers }}</p>
   </BasePage>
 
   <!-- Tool view -->
