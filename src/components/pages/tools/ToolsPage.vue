@@ -12,6 +12,7 @@ import { useFullscreen } from '@vueuse/core';
 const toolStore = useToolStore()
 
 const iframeContainer = ref<HTMLElement | null>(null)
+const { toggle: toggleFullscreen } = useFullscreen(iframeContainer)
 
 const imagesLoaded = ref(0)
 const loading = computed(() => toolStore.loading || imagesLoaded.value < toolStore.tools.length)
@@ -21,11 +22,17 @@ onMounted(() => toolStore.fetchTools())
 
 function openExternal() {
   const w = window.open()!
+
+  w.document.body.style.margin = "0";
+  w.document.body.style.padding = "0";
+  w.document.body.style.overflow = "hidden";
+
   const iframe = w.document.createElement('iframe')
   iframe.style.width = "100%";
   iframe.style.height = "100%";
   iframe.style.border = "none";
   iframe.src = `/api/res/${toolStore.activeTool!.id}/index.html`
+  
   w.document.body.appendChild(iframe)
 }
 
@@ -75,7 +82,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         imagesLoaded = 0
       }" />
       <FancyText :content="toolStore.activeTool.title" :size="20" />
-      <TopBarButton iconPath="/icons/fullscreen.svg" @click="useFullscreen(iframeContainer)" />
+      <TopBarButton iconPath="/icons/fullscreen.svg" @click="toggleFullscreen" />
       <TopBarButton iconPath="/icons/external.svg" @click="openExternal" />
     </div>
     <hr class="m-0">

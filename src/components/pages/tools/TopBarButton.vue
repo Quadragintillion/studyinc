@@ -5,7 +5,7 @@
 </script>
 
 <template>
-  <div class="rounded-md styled-icon-btn">
-    <img class="w-4 m-1 cursor-pointer aspect-square" :src="iconPath">
+  <div class="cursor-pointer rounded-md styled-icon-btn">
+    <img class="w-4 m-1 aspect-square" :src="iconPath">
   </div>
 </template>
