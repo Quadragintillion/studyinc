@@ -80,7 +80,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
       <TopBarButton iconPath="/icons/external.svg" @click="openExternal" />
     </div>
     <hr class="m-0">
-    <div ref="iframeContainer" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden">
+    <div ref="iframeContainer" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-black">
       <iframe
         v-if="toolStore.activeTool"
         :key="toolStore.activeTool.id"
