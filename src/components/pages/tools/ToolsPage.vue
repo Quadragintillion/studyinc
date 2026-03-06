@@ -7,7 +7,6 @@ import SearchBar from '@/components/misc/SearchBar.vue';
 import Fuse from 'fuse.js';
 import FancyText from '@/components/misc/FancyText.vue';
 import TopBarButton from './TopBarButton.vue';
-import { formatText } from '@/composables/format';
 import { useFullscreen } from '@vueuse/core';
 
 const toolStore = useToolStore()
@@ -75,7 +74,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         toolStore.openTool(null)
         imagesLoaded = 0
       }" />
-      <FancyText :content="formatText(toolStore.activeTool.title)" :size="20" />
+      <FancyText :content="toolStore.activeTool.title" :size="20" />
       <TopBarButton iconPath="/icons/fullscreen.svg" @click="useFullscreen(iframeContainer)" />
       <TopBarButton iconPath="/icons/external.svg" @click="openExternal" />
     </div>
