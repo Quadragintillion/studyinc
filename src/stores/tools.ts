@@ -18,9 +18,10 @@ export const useToolStore = defineStore('tools', () => {
       tools.value = raw.map(t => ({
         ...t,
         title: formatText(t.title),
-        categories: t.categories.map((c: string) => formatText(c)),
-        searchTerms: t.searchTerms.map((s: string) => formatText(s)),
-        aspectRatio: t.aspectRatio ? eval(t.aspectRatio) : t.aspectRatio
+        categories: t.categories ? t.categories.map((c: string) => formatText(c)) : [],
+        searchTerms: t.searchTerms ? t.searchTerms.map((s: string) => formatText(s)) : [],
+        aspectRatio: t.aspectRatio ? eval(t.aspectRatio) : t.aspectRatio,
+        externalLink: t.externalLink ? formatText(t.externalLink) : undefined
       })).filter((tool) => tool.id > -100)
 
       tools.value.sort((a: Tool, b: Tool) => {
@@ -29,6 +30,7 @@ export const useToolStore = defineStore('tools', () => {
       })
     } catch (e) {
       error.value = (e as Error).message
+      console.error(e)
     } finally {
       loading.value = false
     }
