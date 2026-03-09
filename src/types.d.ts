@@ -1,6 +1,7 @@
 type Tool = {
   id: number!,
   title: string!,
+  categories: string[],
   searchTerms: string[],
   isFeatured: boolean,
   aspectRatio: number,

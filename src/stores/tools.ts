@@ -18,6 +18,7 @@ export const useToolStore = defineStore('tools', () => {
       tools.value = raw.map(t => ({
         ...t,
         title: formatText(t.title),
+        categories: t.categories.map((c: string) => formatText(c)),
         searchTerms: t.searchTerms.map((s: string) => formatText(s)),
         aspectRatio: t.aspectRatio ? eval(t.aspectRatio) : t.aspectRatio
       })).filter((tool) => tool.id > -100)
