@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useToolStore } from '@/stores/tools';
 import BasePage from '../BasePage.vue';
 import ToolCardGroup from './ToolCardGroup.vue';
@@ -53,14 +53,23 @@ const searchResults = computed(() =>
 
 const onlineUsers = ref('loading...')
 
-onMounted(async () => {
+async function fetchOnlineUsers() {
   try {
     const response = await fetch('/api/olu')
     onlineUsers.value = await response.text()
   } catch (error) {
     onlineUsers.value = 'unknown'
   }
+}
+
+let onlineUsersInterval: ReturnType<typeof setInterval>
+
+onMounted(() => {
+  fetchOnlineUsers()
+  onlineUsersInterval = setInterval(fetchOnlineUsers, 10000)
 })
+
+onUnmounted(() => clearInterval(onlineUsersInterval))
 
 const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool.isFeatured))
 </script>
