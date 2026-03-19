@@ -45,11 +45,18 @@ const fuse = computed(() => new Fuse(toolStore.tools, {
   threshold: 0.4
 }))
 
-const searchResults = computed(() =>
-  query.value.trim()
-    ? fuse.value.search(query.value).map(r => r.item)
-    : null
+const pinnedTools = computed(() =>
+  toolStore.tools.filter((tool: Tool) => tool.id > -100 && tool.id < -50)
 )
+
+const searchResults = computed(() => {
+  if (!query.value.trim()) return null
+
+  const results = fuse.value.search(query.value).map(r => r.item)
+  const pinnedIds = new Set(pinnedTools.value.map((t: Tool) => t.id))
+  const merged = [...pinnedTools.value, ...results.filter((t: Tool) => !pinnedIds.has(t.id))]
+  return merged
+})
 
 const onlineUsers = ref('loading...')
 
