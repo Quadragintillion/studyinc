@@ -28,7 +28,7 @@ hr {
 }
 
 .styled-btn, .styled-icon-btn {
-  @apply transition-all duration-200 ease-out;
+  @apply transition-all duration-200 ease-out cursor-pointer;
 }
 
 .styled-btn, .styled-icon-btn:hover {
