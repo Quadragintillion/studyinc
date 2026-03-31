@@ -75,6 +75,7 @@ function logout() {
     <div v-else class="flex items-center justify-center h-full">
       <div class="flex flex-col gap-5 w-full max-w-sm px-4">
         <h1 class="text-3xl font-bold text-center">Account</h1>
+        <p>i had to make another change which updated the whole site so this like half works rn. when accounts are done, savedata will save between links</p>
 
         <form class="flex flex-col gap-3" @submit.prevent>
           <input
