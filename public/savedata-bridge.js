@@ -74,5 +74,6 @@
 
   setTimeout(() => { loadResolved = true }, 3000)
 
+  window.parent.postMessage({ type: 'savedata:snapshot', toolId, data: snapshot() }, '*')
   window.parent.postMessage({ type: 'savedata:request', toolId }, '*')
 })()

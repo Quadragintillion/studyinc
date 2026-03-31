@@ -24,21 +24,23 @@ const password = ref('')
 const error = ref<string | null>(null)
 const displayName = ref<string | null>(null)
 
-const preloadProgress = computed(() => {
-  if (!loggedIn.value || savedataStore.preloadDone) return null
-  if (savedataStore.preloadTotal === 0) return null
+const busy = computed(() => savedataStore.bulkOp !== null)
+
+const progress = computed(() => {
+  if (!busy.value) return null
   return {
-    loaded: savedataStore.preloadLoaded,
-    total: savedataStore.preloadTotal,
-    pct: Math.round((savedataStore.preloadLoaded / savedataStore.preloadTotal) * 100),
+    op: savedataStore.bulkOp,
+    done: savedataStore.bulkDone,
+    total: savedataStore.bulkTotal,
+    pct: savedataStore.bulkTotal > 0
+      ? Math.round((savedataStore.bulkDone / savedataStore.bulkTotal) * 100)
+      : 0,
   }
 })
 
-async function startPreload() {
-  // Ensure tools are loaded before preloading save data
+async function getToolIds(): Promise<number[]> {
   if (toolStore.tools.length === 0) await toolStore.fetchTools()
-  const ids = toolStore.tools.map((t: Tool) => t.id)
-  savedataStore.preloadAll(ids)
+  return toolStore.tools.map((t: Tool) => t.id)
 }
 
 onMounted(() => {
@@ -46,7 +48,6 @@ onMounted(() => {
     const token = getAccessToken()
     displayName.value = token?.username as string ?? null
     loggedIn.value = true
-    if (!savedataStore.preloadDone) startPreload()
   }
 })
 
@@ -67,7 +68,6 @@ async function submit(action: AuthAction) {
     const token = getAccessToken()
     displayName.value = token?.username as string ?? username.value.trim()
     loggedIn.value = true
-    startPreload()
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
@@ -83,34 +83,101 @@ function logout() {
   username.value = ''
   password.value = ''
 }
+
+async function handleSave() {
+  const ids = await getToolIds()
+  await savedataStore.saveAll(ids)
+}
+
+async function handleLoad() {
+  const ids = await getToolIds()
+  await savedataStore.loadAll(ids)
+}
+
+async function handleExport() {
+  const ids = await getToolIds()
+  savedataStore.exportToJson(ids)
+}
+
+function handleImport() {
+  const input = document.createElement('input')
+  input.type = 'file'
+  input.accept = '.json,application/json'
+  input.onchange = async () => {
+    const file = input.files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const json = JSON.parse(text)
+      const ids = await getToolIds()
+      savedataStore.importFromJson(ids, json)
+    } catch {}
+  }
+  input.click()
+}
 </script>
 
 <template>
   <BasePage>
     <!-- Logged in view -->
     <div v-if="loggedIn" class="flex items-center justify-center h-full">
-      <div class="flex flex-col items-center gap-4 w-full max-w-sm px-4">
+      <div class="flex flex-col items-center gap-5 w-full max-w-sm px-4">
         <h1 class="text-3xl font-bold">Account</h1>
         <p class="text-slate-400">Signed in{{ displayName ? ` as ${displayName}` : '' }}.</p>
 
-        <!-- Save data preload progress -->
-        <div v-if="preloadProgress" class="w-full flex flex-col gap-2">
-          <div class="flex justify-between text-sm text-slate-400">
-            <span>Loading save data...</span>
-            <span>{{ preloadProgress.loaded }}/{{ preloadProgress.total }}</span>
+        <!-- Save data actions -->
+        <div class="w-full flex flex-col gap-3">
+          <div class="grid grid-cols-2 gap-2">
+            <button
+              class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
+              :disabled="busy"
+              @click="handleExport"
+            >
+              Export Save
+            </button>
+            <button
+              class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
+              :disabled="busy"
+              @click="handleImport"
+            >
+              Import Save
+            </button>
+            <button
+              class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
+              :disabled="busy"
+              @click="handleSave"
+            >
+              <LoadingIcon v-if="progress?.op === 'save'" :size="22" />
+              <span v-else>Save to Server</span>
+            </button>
+            <button
+              class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
+              :disabled="busy"
+              @click="handleLoad"
+            >
+              <LoadingIcon v-if="progress?.op === 'load'" :size="22" />
+              <span v-else>Load from Server</span>
+            </button>
           </div>
-          <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
-            <div
-              class="bg-indigo-500 h-2 rounded-full"
-              :style="{ width: `${preloadProgress.pct}%` }"
-            />
+
+          <!-- Progress bar -->
+          <div v-if="progress" class="w-full flex flex-col gap-1">
+            <div class="flex justify-between text-sm text-slate-400">
+              <span>{{ progress.op === 'save' ? 'Saving...' : 'Loading...' }}</span>
+              <span>{{ progress.done }}/{{ progress.total }}</span>
+            </div>
+            <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+              <div
+                class="bg-indigo-500 h-2 rounded-full"
+                :style="{ width: `${progress.pct}%` }"
+              />
+            </div>
           </div>
         </div>
-        <p v-else-if="savedataStore.preloadDone" class="text-sm text-slate-400">
-          Save data loaded.
-        </p>
 
-        <button class="styled-btn px-4 py-2 rounded-lg" @click="logout">Log out</button>
+        <button class="styled-btn px-4 py-2 rounded-lg" :disabled="busy" @click="logout">
+          Log out
+        </button>
       </div>
     </div>
 

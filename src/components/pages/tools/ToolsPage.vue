@@ -9,9 +9,11 @@ import Fuse from 'fuse.js';
 import FancyText from '@/components/misc/FancyText.vue';
 import TopBarButton from './TopBarButton.vue';
 import { useFullscreen } from '@vueuse/core';
-import { getSavedata, setSavedata } from '@/composables/savedata';
+import { getSavedata } from '@/composables/savedata';
+import { useSavedataStore } from '@/stores/savedata';
 
 const toolStore = useToolStore()
+const savedataStore = useSavedataStore()
 
 const iframeContainer = ref<HTMLElement | null>(null)
 const { toggle: toggleFullscreen } = useFullscreen(iframeContainer)
@@ -25,11 +27,13 @@ async function onMessage(event: MessageEvent) {
   if (event.origin !== window.location.origin) return
   const { type, toolId, data } = event.data ?? {}
 
-  if (type === 'savedata:request') {
+  if (type === 'savedata:snapshot') {
+    if (data && Object.keys(data).length > 0) savedataStore.setCached(toolId, data)
+  } else if (type === 'savedata:request') {
     const saved = await getSavedata(toolId)
     iframeEl.value?.contentWindow?.postMessage({ type: 'savedata:load', data: saved ?? {} }, '*')
   } else if (type === 'savedata:save') {
-    setSavedata(toolId, data)
+    savedataStore.setCached(toolId, data)
   }
 }
 
