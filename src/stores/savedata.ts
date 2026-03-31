@@ -23,6 +23,7 @@ function saveToStorage(cache: Map<number, Record<string, string>>) {
 
 export const useSavedataStore = defineStore('savedata', () => {
   const cache = ref<Map<number, Record<string, string>>>(loadFromStorage())
+  const resetIds = ref<Set<number>>(new Set())
 
   type BulkOp = 'save' | 'load' | null
   const bulkOp = ref<BulkOp>(null)
@@ -31,11 +32,15 @@ export const useSavedataStore = defineStore('savedata', () => {
 
   watch(cache, (val) => saveToStorage(val), { deep: true })
 
+  // Returns cached data, empty object if explicitly reset, or null if unknown
   function getCached(toolId: number): Record<string, string> | null {
-    return cache.value.get(toolId) ?? null
+    if (cache.value.has(toolId)) return cache.value.get(toolId)!
+    if (resetIds.value.has(toolId)) return {}
+    return null
   }
 
   function setCached(toolId: number, data: Record<string, string>) {
+    resetIds.value.delete(toolId)
     cache.value.set(toolId, data)
     saveToStorage(cache.value)
   }
@@ -99,8 +104,17 @@ export const useSavedataStore = defineStore('savedata', () => {
   }
 
   function reset() {
+    // Mark all cached ids as explicitly reset before clearing
+    for (const id of cache.value.keys()) resetIds.value.add(id)
     cache.value.clear()
     saveToStorage(cache.value)
+    // Remove all prefixed tool keys from shared localStorage
+    const toRemove: string[] = []
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i)!
+      if (/^t\d+:/.test(key)) toRemove.push(key)
+    }
+    for (const key of toRemove) localStorage.removeItem(key)
     bulkOp.value = null
     bulkTotal.value = 0
     bulkDone.value = 0

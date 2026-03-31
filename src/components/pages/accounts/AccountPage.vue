@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import Popup from '@/components/popups/Popup.vue'
+import ConfirmationPopup from '@/components/popups/ConfirmationPopup.vue'
 import BasePage from '../BasePage.vue'
 import LoadingIcon from '@/components/misc/LoadingIcon.vue'
 import {
@@ -25,19 +26,13 @@ const error = ref<string | null>(null)
 const displayName = ref<string | null>(null)
 
 const busy = computed(() => savedataStore.bulkOp !== null)
-const confirmReset = ref(false)
+const showImportConfirm = ref(false)
+const showSaveConfirm = ref(false)
+const showLoadConfirm = ref(false)
+const showResetConfirm = ref(false)
 const showImportDone = ref(false)
 const importError = ref<string | null>(null)
-
-function handleReset() {
-  if (!confirmReset.value) {
-    confirmReset.value = true
-    setTimeout(() => { confirmReset.value = false }, 3000)
-    return
-  }
-  confirmReset.value = false
-  savedataStore.reset()
-}
+const pendingImportFile = ref<File | null>(null)
 
 const progress = computed(() => {
   if (!busy.value) return null
@@ -97,11 +92,13 @@ function logout() {
 }
 
 async function handleSave() {
+  showSaveConfirm.value = false
   const ids = await getToolIds()
   await savedataStore.saveAll(ids)
 }
 
 async function handleLoad() {
+  showLoadConfirm.value = false
   const ids = await getToolIds()
   await savedataStore.loadAll(ids)
 }
@@ -111,25 +108,39 @@ async function handleExport() {
   savedataStore.exportToJson(ids)
 }
 
-function handleImport() {
+function pickImportFile() {
   const input = document.createElement('input')
   input.type = 'file'
   input.accept = '.json,application/json'
-  input.onchange = async () => {
+  input.onchange = () => {
     const file = input.files?.[0]
     if (!file) return
-    importError.value = null
-    try {
-      const text = await file.text()
-      const json = JSON.parse(text)
-      const ids = await getToolIds()
-      savedataStore.importFromJson(ids, json)
-      showImportDone.value = true
-    } catch (err: unknown) {
-      importError.value = err instanceof Error ? err.message : 'Failed to parse file'
-    }
+    pendingImportFile.value = file
+    showImportConfirm.value = true
   }
   input.click()
+}
+
+async function handleImport() {
+  showImportConfirm.value = false
+  const file = pendingImportFile.value
+  pendingImportFile.value = null
+  if (!file) return
+  importError.value = null
+  try {
+    const text = await file.text()
+    const json = JSON.parse(text)
+    const ids = await getToolIds()
+    savedataStore.importFromJson(ids, json)
+    showImportDone.value = true
+  } catch (err: unknown) {
+    importError.value = err instanceof Error ? err.message : 'Failed to parse file'
+  }
+}
+
+function handleReset() {
+  showResetConfirm.value = false
+  savedataStore.reset()
 }
 </script>
 
@@ -160,7 +171,7 @@ function handleImport() {
             <button
               class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
               :disabled="busy"
-              @click="handleImport"
+              @click="pickImportFile"
             >
               <img src="/icons/savedata/file-down.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
               Import
@@ -168,7 +179,7 @@ function handleImport() {
             <button
               class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
               :disabled="busy"
-              @click="handleSave"
+              @click="showSaveConfirm = true"
             >
               <LoadingIcon v-if="progress?.op === 'save'" :size="22" />
               <template v-else>
@@ -179,7 +190,7 @@ function handleImport() {
             <button
               class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
               :disabled="busy"
-              @click="handleLoad"
+              @click="showLoadConfirm = true"
             >
               <LoadingIcon v-if="progress?.op === 'load'" :size="22" />
               <template v-else>
@@ -192,10 +203,10 @@ function handleImport() {
           <button
             class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center col-span-2 w-full"
             :disabled="busy"
-            @click="handleReset"
+            @click="showResetConfirm = true"
           >
             <img src="/icons/x.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
-            {{ confirmReset ? 'Are you sure?' : 'Reset All Data' }}
+            Reset Local Data
           </button>
 
           <p v-if="importError" class="text-red-400 text-sm text-center">{{ importError }}</p>
@@ -280,6 +291,34 @@ function handleImport() {
         </button> -->
       </div>
     </div>
+
+    <ConfirmationPopup
+      :show="showImportConfirm"
+      message="Any current local save data will be overwritten. Continue?"
+      @confirm="handleImport"
+      @close="showImportConfirm = false"
+    />
+
+    <ConfirmationPopup
+      :show="showSaveConfirm"
+      message="Save your local data to the server? This will overwrite any previously saved data."
+      @confirm="handleSave"
+      @close="showSaveConfirm = false"
+    />
+
+    <ConfirmationPopup
+      :show="showLoadConfirm"
+      message="Load data from the server? This will replace your local save data."
+      @confirm="handleLoad"
+      @close="showLoadConfirm = false"
+    />
+
+    <ConfirmationPopup
+      :show="showResetConfirm"
+      message="Reset all local save data?"
+      @confirm="handleReset"
+      @close="showResetConfirm = false"
+    />
 
     <!-- Import done popup -->
     <Popup :show="showImportDone" @close="showImportDone = false">

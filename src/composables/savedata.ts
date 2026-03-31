@@ -20,14 +20,10 @@ export async function getSavedataRaw(toolId: number): Promise<Record<string, str
   }
 }
 
-// Returns cached data if available, otherwise fetches from server
+// Returns cached data only — never hits the server implicitly
 export async function getSavedata(toolId: number): Promise<Record<string, string> | null> {
-  // Lazy import to avoid circular dependency (store imports this file)
   const { useSavedataStore } = await import('@/stores/savedata')
-  const store = useSavedataStore()
-  const cached = store.getCached(toolId)
-  if (cached !== null) return cached
-  return getSavedataRaw(toolId)
+  return useSavedataStore().getCached(toolId)
 }
 
 export async function setSavedata(toolId: number, data: Record<string, string>): Promise<void> {
