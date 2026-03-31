@@ -1,11 +1,11 @@
 <script setup lang="ts">
-withDefaults(defineProps<{ showX?: boolean }>(), { showX: true })
+withDefaults(defineProps<{ showX?: boolean; show?: boolean }>(), { showX: true, show: true })
 defineEmits<{ close: [] }>()
 </script>
 
 <template>
   <Transition name="popup">
-    <div class="fixed inset-0 z-50 flex items-center justify-center">
+    <div v-if="show" class="fixed inset-0 z-50 flex items-center justify-center">
       <div class="absolute inset-0 bg-black/50" @click="$emit('close')" />
       <div class="popup-card relative styled-background rounded-2xl p-6 shadow-2xl max-w-lg w-full mx-4 z-10">
         <button

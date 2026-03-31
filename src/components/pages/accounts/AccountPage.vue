@@ -133,7 +133,7 @@ function logout() {
     </div>
 
     <!-- Adobe login popup -->
-    <Popup v-if="showAdobePopup" @close="showAdobePopup = false">
+    <Popup :show="showAdobePopup" @close="showAdobePopup = false">
       <h2 class="text-lg font-semibold mb-2">Adobe Sign In</h2>
       <p class="text-slate-400">Placeholder</p>
     </Popup>
