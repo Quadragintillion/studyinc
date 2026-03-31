@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import Popup from '@/components/popups/Popup.vue'
 import BasePage from '../BasePage.vue'
 import LoadingIcon from '@/components/misc/LoadingIcon.vue'
@@ -10,6 +10,11 @@ import {
   getAccessToken,
   clearTokens,
 } from '@/composables/amethyst'
+import { useToolStore } from '@/stores/tools'
+import { useSavedataStore } from '@/stores/savedata'
+
+const toolStore = useToolStore()
+const savedataStore = useSavedataStore()
 
 const loggedIn = ref(false)
 const showAdobePopup = ref(false)
@@ -19,11 +24,29 @@ const password = ref('')
 const error = ref<string | null>(null)
 const displayName = ref<string | null>(null)
 
+const preloadProgress = computed(() => {
+  if (!loggedIn.value || savedataStore.preloadDone) return null
+  if (savedataStore.preloadTotal === 0) return null
+  return {
+    loaded: savedataStore.preloadLoaded,
+    total: savedataStore.preloadTotal,
+    pct: Math.round((savedataStore.preloadLoaded / savedataStore.preloadTotal) * 100),
+  }
+})
+
+async function startPreload() {
+  // Ensure tools are loaded before preloading save data
+  if (toolStore.tools.length === 0) await toolStore.fetchTools()
+  const ids = toolStore.tools.map((t: Tool) => t.id)
+  savedataStore.preloadAll(ids)
+}
+
 onMounted(() => {
   if (isLoggedIn()) {
     const token = getAccessToken()
     displayName.value = token?.username as string ?? null
     loggedIn.value = true
+    if (!savedataStore.preloadDone) startPreload()
   }
 })
 
@@ -44,6 +67,7 @@ async function submit(action: AuthAction) {
     const token = getAccessToken()
     displayName.value = token?.username as string ?? username.value.trim()
     loggedIn.value = true
+    startPreload()
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
@@ -53,6 +77,7 @@ async function submit(action: AuthAction) {
 
 function logout() {
   clearTokens()
+  savedataStore.reset()
   loggedIn.value = false
   displayName.value = null
   username.value = ''
@@ -64,9 +89,27 @@ function logout() {
   <BasePage>
     <!-- Logged in view -->
     <div v-if="loggedIn" class="flex items-center justify-center h-full">
-      <div class="flex flex-col items-center gap-4">
+      <div class="flex flex-col items-center gap-4 w-full max-w-sm px-4">
         <h1 class="text-3xl font-bold">Account</h1>
         <p class="text-slate-400">Signed in{{ displayName ? ` as ${displayName}` : '' }}.</p>
+
+        <!-- Save data preload progress -->
+        <div v-if="preloadProgress" class="w-full flex flex-col gap-2">
+          <div class="flex justify-between text-sm text-slate-400">
+            <span>Loading save data...</span>
+            <span>{{ preloadProgress.loaded }}/{{ preloadProgress.total }}</span>
+          </div>
+          <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+            <div
+              class="bg-indigo-500 h-2 rounded-full"
+              :style="{ width: `${preloadProgress.pct}%` }"
+            />
+          </div>
+        </div>
+        <p v-else-if="savedataStore.preloadDone" class="text-sm text-slate-400">
+          Save data loaded.
+        </p>
+
         <button class="styled-btn px-4 py-2 rounded-lg" @click="logout">Log out</button>
       </div>
     </div>
@@ -75,7 +118,6 @@ function logout() {
     <div v-else class="flex items-center justify-center h-full">
       <div class="flex flex-col gap-5 w-full max-w-sm px-4">
         <h1 class="text-3xl font-bold text-center">Account</h1>
-        <p>i had to make another change which updated the whole site so this like half works rn. when accounts are done, savedata will save between links</p>
 
         <form class="flex flex-col gap-3" @submit.prevent>
           <input

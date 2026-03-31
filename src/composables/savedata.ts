@@ -2,7 +2,8 @@ import { isLoggedIn, getValidAccessToken } from './amethyst'
 
 const BASE = '/api/save/v1'
 
-export async function getSavedata(toolId: number): Promise<Record<string, string> | null> {
+// Raw fetch — used by the store for preloading and by getSavedata as fallback
+export async function getSavedataRaw(toolId: number): Promise<Record<string, string> | null> {
   if (!isLoggedIn()) return null
   try {
     const token = await getValidAccessToken()
@@ -19,9 +20,23 @@ export async function getSavedata(toolId: number): Promise<Record<string, string
   }
 }
 
+// Returns cached data if available, otherwise fetches from server
+export async function getSavedata(toolId: number): Promise<Record<string, string> | null> {
+  // Lazy import to avoid circular dependency (store imports this file)
+  const { useSavedataStore } = await import('@/stores/savedata')
+  const store = useSavedataStore()
+  const cached = store.getCached(toolId)
+  if (cached !== null) return cached
+  return getSavedataRaw(toolId)
+}
+
 export async function setSavedata(toolId: number, data: Record<string, string>): Promise<void> {
   if (!isLoggedIn()) return
   try {
+    // Update cache immediately so subsequent reads are consistent
+    const { useSavedataStore } = await import('@/stores/savedata')
+    useSavedataStore().setCached(toolId, data)
+
     const token = await getValidAccessToken()
     const res = await fetch(`${BASE}/${toolId}`, {
       method: 'PUT',
