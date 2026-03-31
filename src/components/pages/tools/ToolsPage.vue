@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useToolStore } from '@/stores/tools';
 import { useOluStore } from '@/stores/olu';
 import BasePage from '../BasePage.vue';
@@ -9,17 +9,38 @@ import Fuse from 'fuse.js';
 import FancyText from '@/components/misc/FancyText.vue';
 import TopBarButton from './TopBarButton.vue';
 import { useFullscreen } from '@vueuse/core';
+import { getSavedata, setSavedata } from '@/composables/savedata';
 
 const toolStore = useToolStore()
 
 const iframeContainer = ref<HTMLElement | null>(null)
 const { toggle: toggleFullscreen } = useFullscreen(iframeContainer)
+const iframeEl = ref<HTMLIFrameElement | null>(null)
 
 const imagesLoaded = ref(0)
 const loading = computed(() => toolStore.loading || imagesLoaded.value < toolStore.tools.length)
 const query = ref('')
 
-onMounted(() => toolStore.fetchTools())
+async function onMessage(event: MessageEvent) {
+  if (event.origin !== window.location.origin) return
+  const { type, gameId, data } = event.data ?? {}
+
+  if (type === 'savedata:request') {
+    const saved = await getSavedata(gameId)
+    iframeEl.value?.contentWindow?.postMessage({ type: 'savedata:load', data: saved ?? {} }, '*')
+  } else if (type === 'savedata:save') {
+    setSavedata(gameId, data)
+  }
+}
+
+onMounted(() => {
+  toolStore.fetchTools()
+  window.addEventListener('message', onMessage)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('message', onMessage)
+})
 
 function openExternal() {
   const w = window.open()!
@@ -99,6 +120,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
     <div ref="iframeContainer" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-black">
       <iframe
         v-if="toolStore.activeTool"
+        ref="iframeEl"
         :key="toolStore.activeTool.id"
         :src="`/api/res/${toolStore.activeTool.id}/index.html`"
         class="border-none w-full h-full"

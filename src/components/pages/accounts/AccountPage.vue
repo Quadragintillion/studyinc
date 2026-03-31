@@ -135,7 +135,7 @@ function logout() {
     <!-- Adobe login popup -->
     <Popup :show="showAdobePopup" @close="showAdobePopup = false">
       <h2 class="text-lg font-semibold mb-2">Adobe Sign In</h2>
-      <p class="text-slate-400">Placeholder</p>
+      <p class="text-slate-400">Accounts aren't fully done yet, since you can't really use emails for accounts (for obvious reasons) they can be verified via Adobe in a kinda weird way. But ya verifying with Adobe will give you Al stuff and allat.</p>
     </Popup>
   </BasePage>
 </template>
