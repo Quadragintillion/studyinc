@@ -23,13 +23,13 @@ const query = ref('')
 
 async function onMessage(event: MessageEvent) {
   if (event.origin !== window.location.origin) return
-  const { type, gameId, data } = event.data ?? {}
+  const { type, toolId, data } = event.data ?? {}
 
   if (type === 'savedata:request') {
-    const saved = await getSavedata(gameId)
+    const saved = await getSavedata(toolId)
     iframeEl.value?.contentWindow?.postMessage({ type: 'savedata:load', data: saved ?? {} }, '*')
   } else if (type === 'savedata:save') {
-    setSavedata(gameId, data)
+    setSavedata(toolId, data)
   }
 }
 

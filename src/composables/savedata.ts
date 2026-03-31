@@ -1,12 +1,12 @@
 import { isLoggedIn, getValidAccessToken } from './amethyst'
 
-const BASE = '/api/save'
+const BASE = '/api/save/v1'
 
-export async function getSavedata(gameId: number): Promise<Record<string, string> | null> {
+export async function getSavedata(toolId: number): Promise<Record<string, string> | null> {
   if (!isLoggedIn()) return null
   try {
     const token = await getValidAccessToken()
-    const res = await fetch(`${BASE}/${gameId}`, {
+    const res = await fetch(`${BASE}/${toolId}`, {
       headers: { Authorization: `Bearer ${token}` },
     })
     if (res.status === 404) return null
@@ -19,11 +19,11 @@ export async function getSavedata(gameId: number): Promise<Record<string, string
   }
 }
 
-export async function setSavedata(gameId: number, data: Record<string, string>): Promise<void> {
+export async function setSavedata(toolId: number, data: Record<string, string>): Promise<void> {
   if (!isLoggedIn()) return
   try {
     const token = await getValidAccessToken()
-    const res = await fetch(`${BASE}/${gameId}`, {
+    const res = await fetch(`${BASE}/${toolId}`, {
       method: 'PUT',
       headers: {
         Authorization: `Bearer ${token}`,

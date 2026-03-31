@@ -1,8 +1,8 @@
 (() => {
   if (window.self === window.top) return
 
-  const gameId = parseInt(window.location.pathname.split('/')[3], 10)
-  if (isNaN(gameId)) return
+  const toolId = parseInt(window.location.pathname.split('/')[3], 10)
+  if (isNaN(toolId)) return
 
   let debounceTimer = null
 
@@ -18,7 +18,7 @@
   function scheduleSave() {
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
-      window.parent.postMessage({ type: 'savedata:save', gameId, data: snapshot() }, '*')
+      window.parent.postMessage({ type: 'savedata:save', toolId, data: snapshot() }, '*')
     }, 500)
   }
 
@@ -74,5 +74,5 @@
 
   setTimeout(() => { loadResolved = true }, 3000)
 
-  window.parent.postMessage({ type: 'savedata:request', gameId }, '*')
+  window.parent.postMessage({ type: 'savedata:request', toolId }, '*')
 })()
