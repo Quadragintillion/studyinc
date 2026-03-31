@@ -126,6 +126,11 @@ function handleImport() {
         <p class="text-slate-400">Signed in{{ displayName ? ` as ${displayName}` : '' }}.</p>
 
         <!-- Save data actions -->
+        <div class="flex items-center gap-3 w-full">
+          <hr class="flex-1" />
+          <span class="text-slate-400 text-sm">Data</span>
+          <hr class="flex-1" />
+        </div>
         <div class="w-full flex flex-col gap-3">
           <div class="grid grid-cols-2 gap-2">
             <button
@@ -133,14 +138,16 @@ function handleImport() {
               :disabled="busy"
               @click="handleExport"
             >
-              Export Save
+              <img src="/icons/savedata/file-up.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
+              Export
             </button>
             <button
               class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
               :disabled="busy"
               @click="handleImport"
             >
-              Import Save
+              <img src="/icons/savedata/file-down.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
+              Import
             </button>
             <button
               class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
@@ -148,7 +155,10 @@ function handleImport() {
               @click="handleSave"
             >
               <LoadingIcon v-if="progress?.op === 'save'" :size="22" />
-              <span v-else>Save to Server</span>
+              <template v-else>
+                <img src="/icons/savedata/cloud-up.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
+                Save
+              </template>
             </button>
             <button
               class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
@@ -156,7 +166,10 @@ function handleImport() {
               @click="handleLoad"
             >
               <LoadingIcon v-if="progress?.op === 'load'" :size="22" />
-              <span v-else>Load from Server</span>
+              <template v-else>
+                <img src="/icons/savedata/cloud-down.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
+                Load
+              </template>
             </button>
           </div>
 
@@ -224,7 +237,7 @@ function handleImport() {
           </div>
         </form>
 
-        <div class="flex items-center gap-3">
+        <!-- <div class="flex items-center gap-3">
           <hr class="flex-1" />
           <span class="text-slate-400 text-sm">OR</span>
           <hr class="flex-1" />
@@ -237,7 +250,7 @@ function handleImport() {
         >
           <span class="font-semibold mr-2">Log in with</span>
           <img src="/icons/adobe.svg" class="h-5 brightness-0 invert" />
-        </button>
+        </button> -->
       </div>
     </div>
 
