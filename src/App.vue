@@ -7,8 +7,20 @@ import TutoringPage from './components/pages/tutoring/TutoringPage.vue';
 import VideosPage from './components/pages/videos/VideosPage.vue';
 import Sidebar from './components/sidebar/Sidebar.vue'
 import { usePageStore } from './stores/page';
+import { useOluStore } from './stores/olu';
+import { onMounted, onUnmounted } from 'vue';
 
 const pageStore = usePageStore()
+const oluStore = useOluStore()
+
+let oluInterval: ReturnType<typeof setInterval>
+
+onMounted(() => {
+  oluStore.fetchOnlineUsers()
+  oluInterval = setInterval(oluStore.fetchOnlineUsers, 10000)
+})
+
+onUnmounted(() => clearInterval(oluInterval))
 </script>
 
 <template>

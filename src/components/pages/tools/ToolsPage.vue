@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useToolStore } from '@/stores/tools';
+import { useOluStore } from '@/stores/olu';
 import BasePage from '../BasePage.vue';
 import ToolCardGroup from './ToolCardGroup.vue';
 import SearchBar from '@/components/misc/SearchBar.vue';
@@ -58,25 +59,7 @@ const searchResults = computed(() => {
   return merged
 })
 
-const onlineUsers = ref('loading...')
-
-async function fetchOnlineUsers() {
-  try {
-    const response = await fetch('/api/olu')
-    onlineUsers.value = await response.text()
-  } catch (error) {
-    onlineUsers.value = 'unknown'
-  }
-}
-
-let onlineUsersInterval: ReturnType<typeof setInterval>
-
-onMounted(() => {
-  fetchOnlineUsers()
-  onlineUsersInterval = setInterval(fetchOnlineUsers, 10000)
-})
-
-onUnmounted(() => clearInterval(onlineUsersInterval))
+const oluStore = useOluStore()
 
 const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool.isFeatured))
 </script>
@@ -97,7 +80,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         <h1 class="tool-section">All Tools</h1>
         <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
         
-        <p class="text-xl text-center">online users: {{ onlineUsers }}</p>
+        <p class="text-xl text-center">online users: {{ oluStore.onlineUsers }}</p>
       </template>
   </BasePage>
 
