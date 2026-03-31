@@ -46,7 +46,7 @@ async function getToolIds(): Promise<number[]> {
 onMounted(() => {
   if (isLoggedIn()) {
     const token = getAccessToken()
-    displayName.value = token?.username as string ?? null
+    displayName.value = (token?.userData as Record<string, unknown>)?.username as string ?? null
     loggedIn.value = true
   }
 })
@@ -66,7 +66,7 @@ async function submit(action: AuthAction) {
       await registerWithPassword(username.value.trim(), password.value)
     }
     const token = getAccessToken()
-    displayName.value = token?.username as string ?? username.value.trim()
+    displayName.value = (token?.userData as Record<string, unknown>)?.username as string ?? username.value.trim()
     loggedIn.value = true
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : String(err)
