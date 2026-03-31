@@ -11,7 +11,7 @@ export const useToolStore = defineStore('tools', () => {
     loading.value = true
     error.value = null
     try {
-      const res = await fetch('/api/res/index.json')
+      const res = await fetch(`/api/res/index.json?${Date.now()}`)
       if (!res.ok) throw new Error(`${res.status}`)
       const raw = await res.json() as any[] // generically type so we can change aspectRatio to a number
 
