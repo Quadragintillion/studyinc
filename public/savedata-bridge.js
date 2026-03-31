@@ -4,17 +4,25 @@
   const toolId = parseInt(window.location.pathname.split('/')[3], 10)
   if (isNaN(toolId)) return
 
-  let debounceTimer = null
+  const PREFIX = `t${toolId}:`
+
+  const realStorage = window.localStorage
+
+
+  function prefixedKey(key) { return PREFIX + key }
 
   function snapshot() {
     const data = {}
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i)
-      data[key] = localStorage.getItem(key)
+    for (let i = 0; i < realStorage.length; i++) {
+      const raw = realStorage.key(i)
+      if (!raw.startsWith(PREFIX)) continue
+      const key = raw.slice(PREFIX.length)
+      data[key] = realStorage.getItem(raw)
     }
     return data
   }
 
+  let debounceTimer = null
   function scheduleSave() {
     clearTimeout(debounceTimer)
     debounceTimer = setTimeout(() => {
@@ -22,30 +30,55 @@
     }, 500)
   }
 
-  const realStorage = window.localStorage
   const storageProxy = new Proxy(realStorage, {
     get(target, prop) {
       const value = target[prop]
       if (typeof value === 'function') {
         if (prop === 'setItem') {
           return (key, val) => {
-            target.setItem(key, val)
+            target.setItem(prefixedKey(key), val)
             scheduleSave()
           }
         }
         if (prop === 'removeItem') {
           return (key) => {
-            target.removeItem(key)
+            target.removeItem(prefixedKey(key))
             scheduleSave()
+          }
+        }
+        if (prop === 'getItem') {
+          return (key) => target.getItem(prefixedKey(key))
+        }
+        if (prop === 'key') {
+          return (index) => {
+            // Expose only this tool's keys, re-indexed
+            const keys = []
+            for (let i = 0; i < target.length; i++) {
+              const k = target.key(i)
+              if (k.startsWith(PREFIX)) keys.push(k.slice(PREFIX.length))
+            }
+            return keys[index] ?? null
           }
         }
         if (prop === 'clear') {
           return () => {
-            target.clear()
+            const toRemove = []
+            for (let i = 0; i < target.length; i++) {
+              const k = target.key(i)
+              if (k.startsWith(PREFIX)) toRemove.push(k)
+            }
+            for (const k of toRemove) target.removeItem(k)
             scheduleSave()
           }
         }
         return value.bind(target)
+      }
+      if (prop === 'length') {
+        let count = 0
+        for (let i = 0; i < target.length; i++) {
+          if (target.key(i).startsWith(PREFIX)) count++
+        }
+        return count
       }
       return value
     }
@@ -57,7 +90,6 @@
   })
 
   let loadResolved = false
-
   window.addEventListener('message', (event) => {
     if (event.source !== window.parent) return
     if (event.data?.type !== 'savedata:load') return
@@ -67,7 +99,7 @@
     const data = event.data.data
     if (data && typeof data === 'object') {
       for (const [key, value] of Object.entries(data)) {
-        realStorage.setItem(key, value)
+        realStorage.setItem(prefixedKey(key), value)
       }
     }
   })

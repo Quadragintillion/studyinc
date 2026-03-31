@@ -25,6 +25,19 @@ const error = ref<string | null>(null)
 const displayName = ref<string | null>(null)
 
 const busy = computed(() => savedataStore.bulkOp !== null)
+const confirmReset = ref(false)
+const showImportDone = ref(false)
+const importError = ref<string | null>(null)
+
+function handleReset() {
+  if (!confirmReset.value) {
+    confirmReset.value = true
+    setTimeout(() => { confirmReset.value = false }, 3000)
+    return
+  }
+  confirmReset.value = false
+  savedataStore.reset()
+}
 
 const progress = computed(() => {
   if (!busy.value) return null
@@ -77,7 +90,6 @@ async function submit(action: AuthAction) {
 
 function logout() {
   clearTokens()
-  savedataStore.reset()
   loggedIn.value = false
   displayName.value = null
   username.value = ''
@@ -106,12 +118,16 @@ function handleImport() {
   input.onchange = async () => {
     const file = input.files?.[0]
     if (!file) return
+    importError.value = null
     try {
       const text = await file.text()
       const json = JSON.parse(text)
       const ids = await getToolIds()
       savedataStore.importFromJson(ids, json)
-    } catch {}
+      showImportDone.value = true
+    } catch (err: unknown) {
+      importError.value = err instanceof Error ? err.message : 'Failed to parse file'
+    }
   }
   input.click()
 }
@@ -172,6 +188,17 @@ function handleImport() {
               </template>
             </button>
           </div>
+
+          <button
+            class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center col-span-2 w-full"
+            :disabled="busy"
+            @click="handleReset"
+          >
+            <img src="/icons/x.svg" class="w-4 h-4 mr-2 brightness-0 invert" />
+            {{ confirmReset ? 'Are you sure?' : 'Reset All Data' }}
+          </button>
+
+          <p v-if="importError" class="text-red-400 text-sm text-center">{{ importError }}</p>
 
           <!-- Progress bar -->
           <div v-if="progress" class="w-full flex flex-col gap-1">
@@ -253,6 +280,12 @@ function handleImport() {
         </button> -->
       </div>
     </div>
+
+    <!-- Import done popup -->
+    <Popup :show="showImportDone" @close="showImportDone = false">
+      <h2 class="text-lg font-semibold mb-2">Data loaded</h2>
+      <p class="text-slate-400">Save data was successfully imported.</p>
+    </Popup>
 
     <!-- Adobe login popup -->
     <Popup :show="showAdobePopup" @close="showAdobePopup = false">

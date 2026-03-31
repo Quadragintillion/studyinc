@@ -1,14 +1,35 @@
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
 import { getSavedataRaw, setSavedata } from '@/composables/savedata'
 
+const STORAGE_KEY = 'savedata_cache'
+
+function loadFromStorage(): Map<number, Record<string, string>> {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY)
+    if (!raw) return new Map()
+    const obj = JSON.parse(raw) as Record<string, Record<string, string>>
+    return new Map(Object.entries(obj).map(([k, v]) => [parseInt(k, 10), v]))
+  } catch {
+    return new Map()
+  }
+}
+
+function saveToStorage(cache: Map<number, Record<string, string>>) {
+  const obj: Record<number, Record<string, string>> = {}
+  for (const [k, v] of cache) obj[k] = v
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(obj))
+}
+
 export const useSavedataStore = defineStore('savedata', () => {
-  const cache = ref<Map<number, Record<string, string>>>(new Map())
+  const cache = ref<Map<number, Record<string, string>>>(loadFromStorage())
 
   type BulkOp = 'save' | 'load' | null
   const bulkOp = ref<BulkOp>(null)
   const bulkTotal = ref(0)
   const bulkDone = ref(0)
+
+  watch(cache, (val) => saveToStorage(val), { deep: true })
 
   function getCached(toolId: number): Record<string, string> | null {
     return cache.value.get(toolId) ?? null
@@ -16,12 +37,8 @@ export const useSavedataStore = defineStore('savedata', () => {
 
   function setCached(toolId: number, data: Record<string, string>) {
     cache.value.set(toolId, data)
+    saveToStorage(cache.value)
   }
-
-  // Collect all localStorage data across all tool origins.
-  // Each tool stores data under its own iframe origin, so we read from
-  // the parent's localStorage which is keyed by toolId via the bridge cache.
-  // For export/import we use the in-memory cache as the source of truth.
 
   async function saveAll(toolIds: number[]) {
     bulkOp.value = 'save'
@@ -52,6 +69,7 @@ export const useSavedataStore = defineStore('savedata', () => {
       })
     )
 
+    saveToStorage(cache.value)
     bulkOp.value = null
   }
 
@@ -77,10 +95,12 @@ export const useSavedataStore = defineStore('savedata', () => {
         cache.value.set(id, data)
       }
     }
+    saveToStorage(cache.value)
   }
 
   function reset() {
     cache.value.clear()
+    saveToStorage(cache.value)
     bulkOp.value = null
     bulkTotal.value = 0
     bulkDone.value = 0

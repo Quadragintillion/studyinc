@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
 import { useToolStore } from '@/stores/tools';
 import { useOluStore } from '@/stores/olu';
 import BasePage from '../BasePage.vue';
@@ -28,7 +28,7 @@ async function onMessage(event: MessageEvent) {
   const { type, toolId, data } = event.data ?? {}
 
   if (type === 'savedata:snapshot') {
-    if (data && Object.keys(data).length > 0) savedataStore.setCached(toolId, data)
+    if (data && Object.keys(data).length > 0 && savedataStore.getCached(toolId) === null) savedataStore.setCached(toolId, data)
   } else if (type === 'savedata:request') {
     const saved = await getSavedata(toolId)
     iframeEl.value?.contentWindow?.postMessage({ type: 'savedata:load', data: saved ?? {} }, '*')
@@ -36,6 +36,16 @@ async function onMessage(event: MessageEvent) {
     savedataStore.setCached(toolId, data)
   }
 }
+
+watch(() => toolStore.activeTool, (tool) => {
+  if (!tool) return
+  const cached = savedataStore.getCached(tool.id)
+  if (!cached) return
+  const prefix = `t${tool.id}:`
+  for (const [key, value] of Object.entries(cached)) {
+    localStorage.setItem(prefix + key, value)
+  }
+})
 
 onMounted(() => {
   toolStore.fetchTools()
