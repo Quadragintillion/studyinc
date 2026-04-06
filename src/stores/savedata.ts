@@ -1,6 +1,6 @@
 import { ref, watch } from 'vue'
 import { defineStore } from 'pinia'
-import { getSavedataRaw, setSavedata } from '@/composables/savedata'
+import { downloadSavedata, setSavedata } from '@/composables/savedata'
 
 const STORAGE_KEY = 'savedata_cache'
 
@@ -68,7 +68,7 @@ export const useSavedataStore = defineStore('savedata', () => {
 
     await Promise.all(
       toolIds.map(async (id) => {
-        const data = await getSavedataRaw(id)
+        const data = await downloadSavedata(id)
         if (data !== null) cache.value.set(id, data)
         bulkDone.value++
       })

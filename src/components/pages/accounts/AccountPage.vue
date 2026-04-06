@@ -151,6 +151,7 @@ function handleReset() {
       <div class="flex flex-col items-center gap-5 w-full max-w-sm px-4">
         <h1 class="text-3xl font-bold">Account</h1>
         <p class="text-slate-400">Signed in{{ displayName ? ` as ${displayName}` : '' }}.</p>
+        <p v-if="displayName==='dev'">"guys my username is dev that means i own the site!"</p>
 
         <!-- Save data actions -->
         <div class="flex items-center gap-3 w-full">

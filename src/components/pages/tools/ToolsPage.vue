@@ -74,9 +74,8 @@ function openExternal() {
 
 const fuse = computed(() => new Fuse(toolStore.tools, {
   keys: [
-    { name: 'title', weight: 2 },
-    { name: 'category', weight: 1 },
-    { name: 'searchTerms', weight: 1.5 }
+    { name: 'title', weight: 3 },
+    { name: 'searchTerms', weight: 1 }
   ],
   threshold: 0.4
 }))

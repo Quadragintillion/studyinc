@@ -8,10 +8,13 @@ import VideosPage from './components/pages/videos/VideosPage.vue';
 import Sidebar from './components/sidebar/Sidebar.vue'
 import { usePageStore } from './stores/page';
 import { useOluStore } from './stores/olu';
-import { onMounted, onUnmounted } from 'vue';
+import { onMounted, onUnmounted, ref } from 'vue';
+import Popup from './components/popups/Popup.vue';
 
 const pageStore = usePageStore()
 const oluStore = useOluStore()
+
+const showMOTD = ref(false)
 
 let oluInterval: ReturnType<typeof setInterval>
 
@@ -33,5 +36,9 @@ onUnmounted(() => clearInterval(oluInterval))
     <TutoringPage v-if="pageStore.page == 'Tutoring'" />
     <AccountPage v-if="pageStore.page == 'Account'" />
     <SettingsPage v-if="pageStore.page == 'Settings'" />
+
+    <Popup :show="showMOTD" v-on:close="showMOTD = false">
+      <p>due to some stuff my hosting provider is doing, the site will temporarily be down in the morning on april 10 (2am-10am CDT)</p>
+    </Popup>
   </div>
 </template>
