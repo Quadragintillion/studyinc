@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref, nextTick, useTemplateRef } from 'vue'
+import { marked } from 'marked'
+import DOMPurify from 'dompurify'
 import BasePage from '../BasePage.vue'
 
 type Role = 'user' | 'assistant'
@@ -89,13 +91,14 @@ function clearChat() {
           :class="['flex', msg.role === 'user' ? 'justify-end' : 'justify-start']"
         >
           <div
-            :class="[
-              'max-w-[80%] px-4 py-2 rounded-2xl whitespace-pre-wrap wrap-break-word',
-              msg.role === 'user'
-                ? 'bg-blue-500 text-white rounded-br-sm'
-                : 'bg-slate-300 dark:bg-slate-700 rounded-bl-sm',
-            ]"
+            v-if="msg.role === 'user'"
+            class="max-w-[80%] px-4 py-2 rounded-2xl whitespace-pre-wrap wrap-break-word bg-blue-500 text-white rounded-br-sm"
           >{{ msg.content }}</div>
+          <div
+            v-else
+            class="max-w-[80%] px-4 py-2 rounded-2xl wrap-break-word bg-slate-300 dark:bg-slate-700 rounded-bl-sm markdown-body"
+            v-html="DOMPurify.sanitize(marked.parse(msg.content, { async: false }) as string)"
+          ></div>
         </div>
 
         <div v-if="sending" class="flex justify-start">
