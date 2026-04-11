@@ -43,3 +43,117 @@ hr {
 .search-bar {
   @apply bg-slate-900 rounded-full;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Markdown rendering */
+
+.markdown-body h1 {
+  @apply text-2xl font-bold mt-4 mb-2;
+}
+
+.markdown-body h2 {
+  @apply text-xl font-bold mt-4 mb-2;
+}
+
+.markdown-body h3 {
+  @apply text-lg font-bold mt-3 mb-2;
+}
+
+.markdown-body h4 {
+  @apply text-base font-bold mt-3 mb-1;
+}
+
+.markdown-body h5,
+.markdown-body h6 {
+  @apply text-sm font-bold mt-2 mb-1;
+}
+
+.markdown-body p {
+  @apply my-2 leading-relaxed;
+}
+
+.markdown-body a {
+  @apply text-blue-600 dark:text-blue-300 underline;
+}
+
+.markdown-body ul {
+  @apply list-disc pl-6 my-2 space-y-1;
+}
+
+.markdown-body ol {
+  @apply list-decimal pl-6 my-2 space-y-1;
+}
+
+.markdown-body li {
+  @apply leading-relaxed;
+}
+
+.markdown-body li > ul,
+.markdown-body li > ol {
+  @apply my-1;
+}
+
+.markdown-body blockquote {
+  @apply border-l-4 border-slate-400 dark:border-slate-500 pl-3 my-2 italic text-slate-700 dark:text-slate-300;
+}
+
+.markdown-body code {
+  @apply bg-slate-200 dark:bg-slate-800 px-1 py-0.5 rounded text-sm font-mono;
+}
+
+.markdown-body pre {
+  @apply bg-slate-200 dark:bg-slate-900 p-3 rounded-lg my-2 overflow-x-auto;
+}
+
+.markdown-body pre code {
+  @apply bg-transparent p-0 text-sm;
+}
+
+.markdown-body table {
+  @apply my-2 border-collapse border border-slate-400 dark:border-slate-600;
+}
+
+.markdown-body th,
+.markdown-body td {
+  @apply border border-slate-400 dark:border-slate-600 px-3 py-1 text-left;
+}
+
+.markdown-body th {
+  @apply bg-slate-200 dark:bg-slate-800 font-semibold;
+}
+
+.markdown-body hr {
+  @apply my-3;
+}
+
+.markdown-body strong {
+  @apply font-bold;
+}
+
+.markdown-body em {
+  @apply italic;
+}
+
+.markdown-body > *:first-child {
+  @apply mt-0;
+}
+
+.markdown-body > *:last-child {
+  @apply mb-0;
+}
