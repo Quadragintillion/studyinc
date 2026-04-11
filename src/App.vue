@@ -38,7 +38,7 @@ onUnmounted(() => clearInterval(oluInterval))
     <SettingsPage v-if="pageStore.page == 'Settings'" />
 
     <Popup :show="showMOTD" v-on:close="showMOTD = false">
-      <p>due to some stuff my hosting provider is doing, the site will temporarily be down in the morning on april 10 (2am-10am CDT)</p>
+      <p class="mr-5">due to some stuff my hosting provider is doing, the site will temporarily be down in the morning on april 10 (friday) from 2am-10am CDT. just letting y'all know in advance kuz ik you guys are most active at like 7am</p>
     </Popup>
   </div>
 </template>
