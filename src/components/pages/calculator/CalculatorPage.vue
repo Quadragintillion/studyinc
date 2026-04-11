@@ -2,6 +2,8 @@
 import { ref, nextTick, useTemplateRef } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
+import katex from 'katex'
+import 'katex/dist/katex.min.css'
 import BasePage from '../BasePage.vue'
 import LoadingIcon from '@/components/misc/LoadingIcon.vue'
 
@@ -16,6 +18,43 @@ const input = ref('')
 const sending = ref(false)
 const error = ref<string | null>(null)
 const scrollEl = useTemplateRef<HTMLDivElement>('scrollEl')
+
+function renderMath(src: string): string {
+  const placeholders: string[] = []
+  const stash = (tex: string, display: boolean) => {
+    try {
+      const html = katex.renderToString(tex, {
+        displayMode: display,
+        throwOnError: false,
+        output: 'html',
+      })
+      placeholders.push(html)
+      return `@@KMATH${placeholders.length - 1}KMATH@@`
+    } catch {
+      return display ? `[${tex}]` : `(${tex})`
+    }
+  }
+
+  let s = src
+
+  s = s.replace(/\\\[([\s\S]+?)\\\]/g, (_, tex) => stash(tex, true))
+  s = s.replace(/\\\(([\s\S]+?)\\\)/g, (_, tex) => stash(tex, false))
+  s = s.replace(/\$\$([\s\S]+?)\$\$/g, (_, tex) => stash(tex, true))
+
+  s = s.replace(/^[ \t]*\[[ \t]*\n?([\s\S]+?)\n?[ \t]*\][ \t]*$/gm, (m, tex) => {
+    if (!/\\/.test(tex)) return m
+    return stash(tex, true)
+  })
+
+  s = s.replace(/\(([^()\n]*\\[^()\n]*)\)/g, (_, tex) => stash(tex, false))
+
+  let html = DOMPurify.sanitize(marked.parse(s, { async: false }) as string, {
+    ADD_TAGS: ['semantics', 'annotation', 'math', 'mrow', 'mi', 'mo', 'mn', 'msup', 'msub', 'mfrac', 'msqrt', 'mtext'],
+    ADD_ATTR: ['encoding', 'mathvariant'],
+  })
+  html = html.replace(/@@KMATH(\d+)KMATH@@/g, (_, i) => placeholders[Number(i)] ?? '')
+  return html
+}
 
 async function scrollToBottom() {
   await nextTick()
@@ -98,7 +137,7 @@ function clearChat() {
           <div
             v-else
             class="max-w-[80%] px-4 py-2 rounded-2xl wrap-break-word bg-slate-300 dark:bg-slate-700 rounded-bl-sm markdown-body"
-            v-html="DOMPurify.sanitize(marked.parse(msg.content, { async: false }) as string)"
+            v-html="renderMath(msg.content)"
           ></div>
         </div>
 

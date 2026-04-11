@@ -13,9 +13,11 @@
     "type-check": "vue-tsc --build"
   },
   "dependencies": {
+    "@types/katex": "^0.16.8",
     "@vueuse/core": "^14.2.1",
     "dompurify": "^3.3.3",
     "fuse.js": "^7.1.0",
+    "katex": "^0.16.45",
     "marked": "^18.0.0",
     "pinia": "^3.0.4",
     "vue": "^3.5.28"
