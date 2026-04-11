@@ -3,8 +3,8 @@ import AccountPage from './components/pages/accounts/AccountPage.vue';
 import NotesPage from './components/pages/notes/NotesPage.vue';
 import SettingsPage from './components/pages/settings/SettingsPage.vue';
 import ToolsPage from './components/pages/tools/ToolsPage.vue'
+import CalculatorPage from './components/pages/calculator/CalculatorPage.vue';
 import TutoringPage from './components/pages/tutoring/TutoringPage.vue';
-import VideosPage from './components/pages/videos/VideosPage.vue';
 import Sidebar from './components/sidebar/Sidebar.vue'
 import { usePageStore } from './stores/page';
 import { useOluStore } from './stores/olu';
@@ -31,7 +31,7 @@ onUnmounted(() => clearInterval(oluInterval))
     <Sidebar class="mr-3" />
 
     <ToolsPage v-if="pageStore.page == 'Study Tools'" />
-    <VideosPage v-if="pageStore.page == 'Videos'" />
+    <CalculatorPage v-if="pageStore.page == 'Calculator'" />
     <NotesPage v-if="pageStore.page == 'Notes'" />
     <TutoringPage v-if="pageStore.page == 'Tutoring'" />
     <AccountPage v-if="pageStore.page == 'Account'" />
