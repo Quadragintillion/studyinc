@@ -3,6 +3,7 @@ import { ref, nextTick, useTemplateRef } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import BasePage from '../BasePage.vue'
+import LoadingIcon from '@/components/misc/LoadingIcon.vue'
 
 type Role = 'user' | 'assistant'
 interface Message {
@@ -102,8 +103,8 @@ function clearChat() {
         </div>
 
         <div v-if="sending" class="flex justify-start">
-          <div class="px-4 py-2 rounded-2xl bg-slate-300 dark:bg-slate-700 rounded-bl-sm">
-            <span class="inline-block animate-pulse">…</span>
+          <div class="px-4 py-2 rounded-2xl bg-slate-300 dark:bg-slate-700 rounded-bl-sm flex items-center">
+            <LoadingIcon :size="20" />
           </div>
         </div>
 
