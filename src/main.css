@@ -41,7 +41,7 @@ hr {
 
 
 .search-bar {
-  @apply bg-slate-900 rounded-full;
+  @apply bg-slate-900 rounded-[20px];
 }
 
 

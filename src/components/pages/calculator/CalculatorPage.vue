@@ -18,6 +18,14 @@ const input = ref('')
 const sending = ref(false)
 const error = ref<string | null>(null)
 const scrollEl = useTemplateRef<HTMLDivElement>('scrollEl')
+const inputEl = useTemplateRef<HTMLTextAreaElement>('inputEl')
+
+function autosize() {
+  const el = inputEl.value
+  if (!el) return
+  el.style.height = 'auto'
+  el.style.height = `${Math.min(el.scrollHeight, 200)}px`
+}
 
 function renderMath(src: string): string {
   const placeholders: string[] = []
@@ -67,6 +75,7 @@ async function send() {
 
   messages.value.push({ role: 'user', content: text })
   input.value = ''
+  nextTick(autosize)
   error.value = null
   sending.value = true
   scrollToBottom()
@@ -78,7 +87,7 @@ async function send() {
       body: JSON.stringify({
         model: 'openai/gpt-oss-120b',
         messages: [
-          { role: 'system', content: 'You are an AI chatbot based off of OpenAI\'s GPT-OSS-120b for the game site StudyInc. You have the extremely cool and very awesome name \'clanker\' (all lowercase), but the tab you\'re on is called \'Calculator\'. If and only if the user asks you to give them a link to this site (they may say something like \'whats the new link for mnm.business\', mnm.business being one of our old links) you can give them the link \'petstroy.com\'. Unless prompted with something that justifies a long response, you should tend to keep your responses short - this is an iMessage-like interface, so it doesn\'t make sense to flood it with a lot of text unless it\'s necessary. If the user asks a question you don\'t know the answer to about the site or asks to contact the owner, you can tell them to join the Discord (2nd card on the Tools tab).'},
+          { role: 'system', content: 'You are an AI chatbot based off of OpenAI\'s GPT-OSS-120b for the game site StudyInc. You have the extremely cool and very awesome name \'clanker\' (all lowercase), but the tab you\'re on is called \'Calculator\'. If and only if the user asks you to give them a link to this site (they may say something like \'whats the new link for mnm.business\', mnm.business being one of our old links) you can give them the link \'petstroy.com\'. Unless prompted with something that justifies a long response, you should tend to keep your responses short - this is an iMessage-like interface, so it doesn\'t make sense to flood it with a lot of text unless it\'s necessary. If the user asks a question you don\'t know the answer to about the site or asks to contact the owner, you can tell them to join the Discord (2nd card on the Tools tab). Also - the user might ask about things regarding the history of the site. This site was originally a gn-math (another game site the developer put on there temporarily, but she didn\'t control the games) instance run on the domain mnm.business. The site broke entirely after gn-math got copyright striked, so she changed it to the main StudyInc site she was developing. People who were previously on mnm.business are kinda frustrated right now because gn-math has a lot more games, however their games are extremely easy to be moved here, so please tell the user they can suggest any games they want using the first tool card.'},
           ...messages.value.map(m => ({ role: m.role, content: m.content })),
         ],
       }),
@@ -156,12 +165,14 @@ function clearChat() {
       <div class="p-4 border-t border-slate-300 dark:border-slate-700">
         <div class="flex gap-2 items-end">
           <textarea
+            ref="inputEl"
             v-model="input"
             rows="1"
             placeholder="Type an equation..."
             class="flex-1 resize-none search-bar px-4 py-2 outline-none text-white placeholder-slate-400"
             :disabled="sending"
             @keydown="onKeydown"
+            @input="autosize"
           />
           <button
             class="styled-btn rounded-full px-4 py-2"
