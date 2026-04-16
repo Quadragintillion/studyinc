@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, nextTick, useTemplateRef } from 'vue'
+import { ref, nextTick, onMounted, useTemplateRef } from 'vue'
 import { marked } from 'marked'
 import DOMPurify from 'dompurify'
 import katex from 'katex'
@@ -130,6 +130,10 @@ function clearChat() {
   messages.value = []
   error.value = null
 }
+
+onMounted(() => {
+  nextTick(() => inputEl.value?.focus())
+})
 </script>
 
 <template>
