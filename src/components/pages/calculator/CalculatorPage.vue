@@ -115,6 +115,7 @@ async function send() {
   } finally {
     sending.value = false
     scrollToBottom()
+    nextTick(() => inputEl.value?.focus())
   }
 }
 

@@ -9,6 +9,8 @@ import {
   loginWithPassword,
   registerWithPassword,
   getAccessToken,
+  getRefreshToken,
+  refreshAccessToken,
   clearTokens,
 } from '@/composables/amethyst'
 import { useToolStore } from '@/stores/tools'
@@ -51,12 +53,21 @@ async function getToolIds(): Promise<number[]> {
   return toolStore.tools.map((t: Tool) => t.id)
 }
 
-onMounted(() => {
-  if (isLoggedIn()) {
-    const token = getAccessToken()
-    displayName.value = (token?.userData as Record<string, unknown>)?.username as string ?? null
-    loggedIn.value = true
+onMounted(async () => {
+  if (!isLoggedIn()) return
+  loggedIn.value = true
+  let token = getAccessToken()
+  if (!token && getRefreshToken()) {
+    try {
+      await refreshAccessToken()
+      token = getAccessToken()
+    } catch {
+      clearTokens()
+      loggedIn.value = false
+      return
+    }
   }
+  displayName.value = (token?.userData as Record<string, unknown>)?.username as string ?? null
 })
 
 type AuthAction = 'login' | 'register'
