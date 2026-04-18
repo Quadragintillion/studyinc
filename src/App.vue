@@ -14,7 +14,7 @@ import Popup from './components/popups/Popup.vue';
 const pageStore = usePageStore()
 const oluStore = useOluStore()
 
-const showMOTD = ref(true)
+const showMOTD = ref(false)
 
 let oluInterval: ReturnType<typeof setInterval>
 
