@@ -14,7 +14,7 @@ import Popup from './components/popups/Popup.vue';
 const pageStore = usePageStore()
 const oluStore = useOluStore()
 
-const showMOTD = ref(false)
+const showMOTD = ref(true)
 
 let oluInterval: ReturnType<typeof setInterval>
 
@@ -38,7 +38,7 @@ onUnmounted(() => clearInterval(oluInterval))
     <SettingsPage v-if="pageStore.page == 'Settings'" />
 
     <Popup :show="showMOTD" v-on:close="showMOTD = false">
-      <p class="mr-7">burrito bison has been fixed! if it doesn't fix automatically, click <a href="/api/res/33/kongregate_api.js" class="underline">here</a> and press refresh (forcefully loads the new version). you might also need to reset your local data, which you can do on the account tab (sorry! export your savedata to a json first maybe?)</p>
+      <p class="mr-7">THE NOTES PAGE IS FINALLY DONE!! check it out! (also imma start taking suggestions again, i haven't been adding anything recently kuz of ts)</p>
     </Popup>
   </div>
 </template>

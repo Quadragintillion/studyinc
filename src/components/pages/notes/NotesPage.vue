@@ -2,6 +2,8 @@
 import { ref, computed, onMounted, nextTick } from 'vue'
 import BasePage from '../BasePage.vue'
 import LoadingIcon from '@/components/misc/LoadingIcon.vue'
+import Popup from '@/components/popups/Popup.vue'
+import { formatText } from '@/composables/format'
 
 // injected by proxy scripts
 
@@ -39,9 +41,10 @@ interface Tab {
 }
 
 const bookmarks = [
-  { title: 'TikTok',  icon: '/icons/co/quicklessons.png', page: 'https://tiktok.com/' },
+  { title: 'Fixed YT', icon: '/icons/co/videos2.png', page: ['https://inv.thepixora.com/', 'https://yt.chocolatemoo53.com/'] },
   { title: 'Discord', icon: '/icons/co/tutorplusplus.webp', page: 'https://discord.com/' },
-  { title: 'Movies',  icon: '/icons/co/videos.png', page: 'https://www.cineby.sc/' },
+  { title: 'Movies', icon: '/icons/co/videos.png', page: 'https://www.cineby.sc/' },
+  { title: 'TikTok', icon: '/icons/co/quicklessons.png', page: 'https://tiktok.com/' },
 ]
 
 const tabs = ref<Tab[]>([])
@@ -159,6 +162,11 @@ async function navigateTo(raw: string) {
     url = 'https://' + url
   }
 
+  if (isBlocked(url)) {
+    blockedPopupActive.value = true
+    return
+  }
+
   if (connection) {
     if (!await connection.getTransport()) {
       await connection.setTransport('/epoxy/index.mjs', [{ wisp: wispUrl }])
@@ -244,7 +252,25 @@ function onSearchKeydown(e: KeyboardEvent) {
 }
 
 
+const browserPopupActive = ref(false)
+const blockedPopupActive = ref(false)
+
+const blockedDomains = ['FAAdCAwaDUgHAAI=', 'HBkGAgEAHEgHAAI=', 'FhoDA1dbQR4cFw==', 'DgodDQkOGwNKDAAL', 'HAEXHkoMAAs=', 'HAcOCxcbChRKDAAL', 'FgoLEhENCkgHAAI=', 'HQAaFgsdAUgHAAI=', 'EBoNA1xBDAkJ', 'Fx8OCA8NDggDQQwJCQ==', 'AR8AFAoKHUgHAAI=', 'EAEOAAgGF0gHAAI=', 'Bh0OHB4KHRVKDAAL', 'Bg4BAQYdABVKDAAL', 'ChoNDwgKHEgKChs=', 'CwEDHwIOARVKDAAL', 'BwcOEhEdDQcQCkEFCwI=']
+
+function isBlocked(url: string): boolean {
+  try {
+    const hostname = new URL(url).hostname.replace(/^www\./, '')
+    return blockedDomains.some(d => hostname === formatText(d) || hostname.endsWith('.' + formatText(d)))
+  } catch {
+    return false
+  }
+}
+
 onMounted(async () => {
+  if (navigator.vendor !== 'Google Inc.') {
+    browserPopupActive.value = true
+  }
+
   await initProxy()
   createTab()
 })
@@ -349,7 +375,7 @@ onMounted(async () => {
               v-for="page in bookmarks"
               :key="page.title"
               class="flex flex-col items-center gap-2 p-3 rounded-xl hover:bg-slate-700/60 transition-colors group"
-              @click="navigateTo(page.page)"
+              @click="navigateTo(Array.isArray(page.page) ? page.page[Math.floor(Math.random() * page.page.length)]! : page.page)"
             >
               <img :src="page.icon" class="w-10 h-10 object-contain rounded-lg" :alt="page.title" />
               <span class="text-xs text-slate-400 group-hover:text-white transition-colors">{{ page.title }}</span>
@@ -369,6 +395,12 @@ onMounted(async () => {
     </div>
 
   </BasePage>
+  <Popup :show="browserPopupActive" v-on:close="browserPopupActive = false">
+    <p>ts page only works on chromium btw</p>
+  </Popup>
+  <Popup :show="blockedPopupActive" v-on:close="blockedPopupActive = false">
+    <p>ok THAT i can't let you do</p>
+  </Popup>
 </template>
 
 <style scoped>
