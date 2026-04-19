@@ -231,7 +231,7 @@ function handleReset() {
             </div>
             <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
               <div
-                class="bg-indigo-500 h-2 rounded-full"
+                class="bg-sky-500 h-2 rounded-full"
                 :style="{ width: `${progress.pct}%` }"
               />
             </div>

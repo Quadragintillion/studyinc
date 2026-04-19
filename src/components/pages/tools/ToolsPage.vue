@@ -11,9 +11,18 @@ import TopBarButton from './TopBarButton.vue';
 import { useFullscreen } from '@vueuse/core';
 import { getSavedata } from '@/composables/savedata';
 import { useSavedataStore } from '@/stores/savedata';
+import { useSettingsStore } from '@/stores/settings';
+import { formatText } from '@/composables/format';
 
 const toolStore = useToolStore()
 const savedataStore = useSavedataStore()
+const settingsStore = useSettingsStore()
+
+const visibleTools = computed(() =>
+  settingsStore.hideBadGuys
+    ? toolStore.tools.filter((t: Tool) => !t.categories.some((c: string) => c === formatText('CQ4bExYK')))
+    : toolStore.tools
+)
 
 const iframeContainer = ref<HTMLElement | null>(null)
 const { toggle: toggleFullscreen } = useFullscreen(iframeContainer)
@@ -72,7 +81,7 @@ function openExternal() {
   w.document.body.appendChild(iframe)
 }
 
-const fuse = computed(() => new Fuse(toolStore.tools, {
+const fuse = computed(() => new Fuse(visibleTools.value, {
   keys: [
     { name: 'title', weight: 3 },
     { name: 'searchTerms', weight: 1 }
@@ -81,7 +90,7 @@ const fuse = computed(() => new Fuse(toolStore.tools, {
 }))
 
 const pinnedTools = computed(() =>
-  toolStore.tools.filter((tool: Tool) => tool.id > -100 && tool.id < -50)
+  visibleTools.value.filter((tool: Tool) => tool.id > -100 && tool.id < -50)
 )
 
 const searchResults = computed(() => {
@@ -95,7 +104,7 @@ const searchResults = computed(() => {
 
 const oluStore = useOluStore()
 
-const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool.isFeatured))
+const featuredTools = computed(() => visibleTools.value.filter((tool: Tool) => tool.isFeatured))
 </script>
 
 <template>
@@ -112,7 +121,7 @@ const featuredTools = computed(() => toolStore.tools.filter((tool: Tool) => tool
         <ToolCardGroup :tools="featuredTools" @loaded="imagesLoaded++" />
 
         <h1 class="tool-section">All Tools</h1>
-        <ToolCardGroup :tools="toolStore.tools" @loaded="imagesLoaded++" />
+        <ToolCardGroup :tools="visibleTools" @loaded="imagesLoaded++" />
         
         <p class="text-xl text-center">online users: {{ oluStore.onlineUsers }}</p>
       </template>
