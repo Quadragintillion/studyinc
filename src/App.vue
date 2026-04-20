@@ -38,7 +38,7 @@ onUnmounted(() => clearInterval(oluInterval))
     <SettingsPage v-if="pageStore.page == 'Settings'" />
 
     <Popup :show="showMOTD" v-on:close="showMOTD = false">
-      <p class="mr-7">THE NOTES PAGE IS FINALLY DONE!! check it out! (also imma start taking suggestions again, i haven't been adding anything recently kuz of ts)</p>
+      <p class="mr-7">there's an about:blank button in settings now btw</p>
     </Popup>
   </div>
 </template>
