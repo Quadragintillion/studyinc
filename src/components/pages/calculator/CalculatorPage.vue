@@ -105,7 +105,7 @@ async function send() {
     if (!res.ok) throw new Error(`Request failed: ${res.status}`)
 
     const data = await res.json()
-    const reply: string = data?.response ?? ''
+    const reply: string = data?.choices?.[0]?.message?.content ?? ''
 
     if (!reply) throw new Error('Empty response')
 

@@ -44,7 +44,7 @@ const bookmarks = [
   { title: 'Fixed YT', icon: '/icons/co/videos2.png', page: ['https://inv.thepixora.com/', 'https://yt.chocolatemoo53.com/'] },
   { title: 'Discord', icon: '/icons/co/tutorplusplus.webp', page: 'https://discord.com/' },
   { title: 'Movies', icon: '/icons/co/videos.png', page: 'https://www.cineby.sc/' },
-  { title: 'TikTok', icon: '/icons/co/quicklessons.png', page: 'https://tiktok.com/' },
+  { title: 'Music', icon: '/icons/co/mashedpotatomelodies.svg', page: 'https://monochrome.tf/' },
 ]
 
 const tabs = ref<Tab[]>([])
