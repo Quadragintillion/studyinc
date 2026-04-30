@@ -29,7 +29,13 @@ const { toggle: toggleFullscreen } = useFullscreen(iframeContainer)
 const iframeEl = ref<HTMLIFrameElement | null>(null)
 
 const imagesLoaded = ref(0)
-const loading = computed(() => toolStore.loading || imagesLoaded.value < toolStore.tools.length)
+const skipped = ref(false)
+const loadProgress = computed(() => {
+  const total = toolStore.tools.length
+  if (total === 0) return 0
+  return Math.round((imagesLoaded.value / total) * 100)
+})
+const loading = computed(() => !skipped.value && (toolStore.loading || imagesLoaded.value < toolStore.tools.length))
 const query = ref('')
 
 async function onMessage(event: MessageEvent) {
@@ -110,6 +116,14 @@ const featuredTools = computed(() => visibleTools.value.filter((tool: Tool) => t
 <template>
   <!-- Menu -->
   <BasePage v-if="!toolStore.activeTool" class="p-5" :loading="loading">
+    <template #loading-extra>
+      <div class="flex flex-col items-center gap-2 w-48">
+        <div class="w-full bg-slate-700 rounded-full h-2 overflow-hidden">
+          <div class="bg-sky-500 h-2 rounded-full transition-all duration-200" :style="{ width: `${loadProgress}%` }" />
+        </div>
+        <button class="text-sm text-slate-400 hover:text-white transition-colors" @click="skipped = true">Skip</button>
+      </div>
+    </template>
       <div name="search-area" class="flex gap-3 mb-3">
         <img src="/icons/search.svg" class="w-6">
         <SearchBar @textChanged="query = $event" />

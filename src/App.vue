@@ -14,7 +14,7 @@ import Popup from './components/popups/Popup.vue';
 const pageStore = usePageStore()
 const oluStore = useOluStore()
 
-const showMOTD = ref(true)
+const showMOTD = ref(false)
 
 let oluInterval: ReturnType<typeof setInterval>
 
@@ -38,7 +38,11 @@ onUnmounted(() => clearInterval(oluInterval))
     <SettingsPage v-if="pageStore.page == 'Settings'" />
 
     <Popup :show="showMOTD" v-on:close="showMOTD = false">
-      <p class="mr-7">WE JUST PASSED 100 ONLINE USERS FOR THE FIRST TIME! thank you all 🩷</p>
+      <h2 class="text-lg mr-7 mb-2"><b>Notes tab temporarily disabled</b></h2>
+      <p class="mr-7 mb-2">Y'all are currently using so much data that the site will literally be forced to shut down in a week unless I disable the notes tab.</p>
+      <img src="/network.png" class="w-96 mb-2">
+      <p class="mr-7 mb-2">I can upgrade the server and have unlimited data, however that costs $60 and I currently don't make any money off this site so please donate if you can (<a href="https://ko-fi.com/dragin" class="text-sky-500 dark:text-sky-500 underline">ko-fi.com/dragin</a>)</p>
+      <p class="mr-7">I'll turn the notes tab back on either on May 4 (when the usage limit resets) or when I raise enough to upgrade the server</p>
     </Popup>
   </div>
 </template>
