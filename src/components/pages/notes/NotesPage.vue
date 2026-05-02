@@ -267,8 +267,6 @@ function isBlocked(url: string): boolean {
 }
 
 onMounted(async () => {
-  alert('this page is currently disabled due to high data usage, it still exists but won\'t work')
-
   if (navigator.vendor !== 'Google Inc.') {
     browserPopupActive.value = true
   }
