@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import BasePage from '../BasePage.vue'
 import LoadingIcon from '@/components/misc/LoadingIcon.vue'
 import Popup from '@/components/popups/Popup.vue'
@@ -57,6 +57,10 @@ let connection: InstanceType<typeof BareMux.BareMuxConnection> | null = null
 let scramjet: ScramjetController | null = null
 // tracks iframes being loaded, since if you open a new tab and one is already loading it'll get all confuzzled, this makes them cancelable
 const loadAbortControllers = new Map<number, AbortController>()
+
+const noteFrame = ref<HTMLDivElement | null>(null)
+let noteFrameRoot: ShadowRoot | null = null
+const noteFrames = new Map<number, HTMLIFrameElement>()
 
 const activeTab = computed(() => tabs.value.find(t => t.selected) ?? null)
 
@@ -116,8 +120,37 @@ function nextId() {
 }
 
 function getIframe(tabId: number): HTMLIFrameElement | null {
-  return document.querySelector<HTMLIFrameElement>(`iframe[data-iframe="${tabId}"]`)
+  return noteFrames.get(tabId) ?? null
 }
+
+function syncNoteFrames() {
+  if (!noteFrameRoot) return
+
+  for (const [id, frame] of noteFrames) {
+    if (!tabs.value.some(t => t.id === id)) {
+      frame.remove()
+      noteFrames.delete(id)
+    }
+  }
+
+  for (const tab of tabs.value) {
+    let frame = noteFrames.get(tab.id)
+    if (!frame) {
+      frame = document.createElement('iframe')
+      frame.src = 'about:blank'
+      frame.dataset.iframe = String(tab.id)
+      frame.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;border:none;'
+      noteFrameRoot.appendChild(frame)
+      noteFrames.set(tab.id, frame)
+    }
+    const visible = tab.selected && tab.ready
+    frame.style.zIndex = visible ? '10' : '0'
+    frame.style.opacity = visible ? '1' : '0'
+    frame.style.pointerEvents = visible ? 'auto' : 'none'
+  }
+}
+
+watch(tabs, syncNoteFrames, { deep: true, flush: 'sync' })
 
 function createTab() {
   tabs.value.forEach(t => (t.selected = false))
@@ -199,7 +232,7 @@ async function navigateTo(raw: string) {
   const ac = new AbortController()
   loadAbortControllers.set(tab.id, ac)
 
-  iframe.addEventListener('load', () => onIframeLoad(iframe, tab.id), { once: true, signal: ac.signal })
+  iframe.addEventListener('load', () => onIframeLoad(iframe, tab.id), { signal: ac.signal })
   iframe.src = proxied
 }
 
@@ -269,6 +302,10 @@ function isBlocked(url: string): boolean {
 onMounted(async () => {
   if (navigator.vendor !== 'Google Inc.') {
     browserPopupActive.value = true
+  }
+
+  if (noteFrame.value) {
+    noteFrameRoot = noteFrame.value.attachShadow({ mode: 'open' })
   }
 
   await initProxy()
@@ -356,7 +393,7 @@ onMounted(async () => {
       <template v-for="tab in tabs" :key="tab.id">
         <div
           v-show="tab.selected && !tab.url"
-          class="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-slate-800 z-10"
+          class="absolute inset-0 flex flex-col items-center justify-center gap-6 bg-slate-800 z-20"
         >
           <div class="flex items-center gap-2 w-full max-w-md px-4">
             <img src="/icons/co/quacker.png" class="w-8 h-8 object-contain shrink-0" alt="DuckDuckGo" />
@@ -382,16 +419,9 @@ onMounted(async () => {
             </button>
           </div>
         </div>
-
-        <!-- ALWAYS have the iframe in the DOM for EVERY tab, otherwise Vue fucking obliterates the proxy -->
-        <iframe
-          :data-iframe="tab.id"
-          src="about:blank"
-          class="absolute inset-0 w-full h-full border-none"
-          :class="tab.selected && tab.ready ? 'z-10 opacity-100' : 'z-0 opacity-0 pointer-events-none'"
-        />
-
       </template>
+
+      <div ref="noteFrame" class="absolute inset-0"></div>
     </div>
 
   </BasePage>
