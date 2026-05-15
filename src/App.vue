@@ -10,6 +10,7 @@ import { usePageStore } from './stores/page';
 import { useOluStore } from './stores/olu';
 import { onMounted, onUnmounted, ref } from 'vue';
 import Popup from './components/popups/Popup.vue';
+import { jailType } from './composables/amethyst'
 
 const pageStore = usePageStore()
 const oluStore = useOluStore()
@@ -38,7 +39,9 @@ onUnmounted(() => clearInterval(oluInterval))
 </script>
 
 <template>
-  <div class="flex m-3">
+  <img class="w-full" src="/babyjail.jpg" v-if="jailType === 'baby'">
+
+  <div class="flex m-3" v-if="jailType === 'none' || jailType === null">
     <Sidebar class="mr-3" />
 
     <ToolsPage v-if="pageStore.page == 'Study Tools'" />

@@ -35,7 +35,7 @@ function openExternal() {
         <button
           role="switch"
           :aria-checked="settingsStore.hideBadGuys"
-          :class="['relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 focus:outline-none', settingsStore.hideBadGuys ? 'bg-sky-500' : 'bg-slate-600']"
+          :class="['cursor-pointer relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors duration-200 focus:outline-none', settingsStore.hideBadGuys ? 'bg-sky-500' : 'bg-slate-600']"
           @click="settingsStore.hideBadGuys = !settingsStore.hideBadGuys"
         >
           <span

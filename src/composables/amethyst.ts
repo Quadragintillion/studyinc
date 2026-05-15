@@ -1,8 +1,11 @@
+import { ref } from 'vue'
+
 const BASE = '/api/accs/v1'
 
 function setCookie(name: string, value: string, days: number) {
   const expires = new Date(Date.now() + days * 864e5).toUTCString()
   document.cookie = `${name}=${value}; expires=${expires}; path=/; SameSite=Strict`
+  if (name === 'amethyst_access') refreshJailType()
 }
 
 function getCookie(name: string): string | null {
@@ -12,12 +15,13 @@ function getCookie(name: string): string | null {
 
 function deleteCookie(name: string) {
   document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/`
+  if (name === 'amethyst_access') refreshJailType()
 }
 
 async function apiFetch<T>(path: string, options: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json', ...options.headers },
     ...options,
+    headers: { 'Content-Type': 'application/json', ...options.headers },
   })
   if (!res.ok) {
     const body = await res.json().catch(() => ({}))
@@ -102,6 +106,7 @@ export async function completeAdobeAuth(contextToken: string, avatarUrl: string)
 
 // Password auth flow
 
+const blockedUsernames = ['CAYbEggKCw8ACwMD', 'CgYIAQEd']
 export async function registerWithPassword(username: string, password: string) {
   const data = await apiFetch<{ token: string }>('/authModules/password/register', {
     method: 'POST',
@@ -112,6 +117,10 @@ export async function registerWithPassword(username: string, password: string) {
     headers: { Authorization: `Bearer ${refreshToken}` },
   })
   saveTokens(accessData.token, refreshToken)
+
+  for (const blocked of blockedUsernames ) if (username.includes(formatText(blocked))) {
+    jailUser(username, 'baby')
+  }
 }
 
 export async function loginWithPassword(username: string, password: string) {
@@ -144,4 +153,28 @@ export function isLoggedIn(): boolean {
 
 export function isVerified(): boolean {
   return getAccessToken()?.verified === true
+}
+
+export function isAdmin(): boolean {
+  const userData = getAccessToken()?.userData as Record<string, unknown> | undefined
+  return !!userData?.is_admin
+}
+
+export const jailType = ref<string | null>(null)
+
+function refreshJailType() {
+  const userData = getAccessToken()?.userData as Record<string, unknown> | undefined
+  jailType.value = userData ? ((userData.jail as string) ?? null) : null
+}
+
+refreshJailType()
+
+// Admin: jail/release a user by username. Empty string releases.
+export async function jailUser(target: string, jail: string): Promise<void> {
+  const token = await getValidAccessToken()
+  await apiFetch('/jail', {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ target, jail }),
+  })
 }

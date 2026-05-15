@@ -12,6 +12,8 @@ import {
   getRefreshToken,
   refreshAccessToken,
   clearTokens,
+  isAdmin,
+  jailUser,
 } from '@/composables/amethyst'
 import { useToolStore } from '@/stores/tools'
 import { useSavedataStore } from '@/stores/savedata'
@@ -20,7 +22,14 @@ const toolStore = useToolStore()
 const savedataStore = useSavedataStore()
 
 const loggedIn = ref(false)
+const admin = ref(false)
 const showAdobePopup = ref(false)
+
+const jailTarget = ref('')
+const jailValue = ref('baby')
+const jailBusy = ref(false)
+const jailError = ref<string | null>(null)
+const jailSuccess = ref<string | null>(null)
 
 const username = ref('')
 const password = ref('')
@@ -68,6 +77,7 @@ onMounted(async () => {
     }
   }
   displayName.value = (token?.userData as Record<string, unknown>)?.username as string ?? null
+  admin.value = isAdmin()
 })
 
 type AuthAction = 'login' | 'register'
@@ -87,6 +97,7 @@ async function submit(action: AuthAction) {
     const token = getAccessToken()
     displayName.value = (token?.userData as Record<string, unknown>)?.username as string ?? username.value.trim()
     loggedIn.value = true
+    admin.value = isAdmin()
   } catch (err: unknown) {
     error.value = err instanceof Error ? err.message : String(err)
   } finally {
@@ -97,9 +108,31 @@ async function submit(action: AuthAction) {
 function logout() {
   clearTokens()
   loggedIn.value = false
+  admin.value = false
   displayName.value = null
   username.value = ''
   password.value = ''
+}
+
+async function submitJail() {
+  jailError.value = null
+  jailSuccess.value = null
+  const target = jailTarget.value.trim()
+  if (!target) {
+    jailError.value = 'Username is required'
+    return
+  }
+  jailBusy.value = true
+  try {
+    await jailUser(target, jailValue.value)
+    jailSuccess.value = jailValue.value
+      ? `${target} jailed as "${jailValue.value}"`
+      : `${target} released`
+  } catch (err: unknown) {
+    jailError.value = err instanceof Error ? err.message : String(err)
+  } finally {
+    jailBusy.value = false
+  }
 }
 
 async function handleSave() {
@@ -237,6 +270,43 @@ function handleReset() {
             </div>
           </div>
         </div>
+
+        <!-- Admin tools -->
+        <template v-if="admin">
+          <div class="flex items-center gap-3 w-full">
+            <hr class="flex-1" />
+            <span class="text-slate-400 text-sm">Admin</span>
+            <hr class="flex-1" />
+          </div>
+          <div class="w-full flex flex-col gap-2">
+            <input
+              v-model="jailTarget"
+              type="text"
+              placeholder="Username"
+              class="styled-input px-4 py-2 rounded-lg bg-slate-700 outline-none w-full placeholder-slate-400"
+              :disabled="jailBusy"
+            />
+            <select
+              v-model="jailValue"
+              class="styled-input px-4 py-2 rounded-lg bg-slate-700 outline-none w-full"
+              :disabled="jailBusy"
+            >
+              <option value="">Release (no jail)</option>
+              <option value="regular">regular</option>
+              <option value="baby">baby</option>
+            </select>
+            <button
+              class="styled-btn px-4 py-2 rounded-lg font-semibold h-10 flex items-center justify-center"
+              :disabled="jailBusy"
+              @click="submitJail"
+            >
+              <LoadingIcon v-if="jailBusy" :size="22" />
+              <span v-else>Apply jail</span>
+            </button>
+            <p v-if="jailError" class="text-red-400 text-sm text-center">{{ jailError }}</p>
+            <p v-if="jailSuccess" class="text-green-400 text-sm text-center">{{ jailSuccess }}</p>
+          </div>
+        </template>
 
         <button class="styled-btn px-4 py-2 rounded-lg" :disabled="busy" @click="logout">
           Log out
