@@ -1,4 +1,5 @@
 import { ref } from 'vue'
+import { formatText } from './format'
 
 const BASE = '/api/accs/v1'
 
