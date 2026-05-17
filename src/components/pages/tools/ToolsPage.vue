@@ -26,7 +26,6 @@ const visibleTools = computed(() =>
 
 const iframeContainer = ref<HTMLElement | null>(null)
 const { toggle: toggleFullscreen } = useFullscreen(iframeContainer)
-const iframeEl = ref<HTMLIFrameElement | null>(null)
 
 const imagesLoaded = ref(0)
 const skipped = ref(false)
@@ -38,18 +37,22 @@ const loadProgress = computed(() => {
 const loading = computed(() => !skipped.value && (toolStore.loading || imagesLoaded.value < toolStore.tools.length))
 const query = ref('')
 
-async function onMessage(event: MessageEvent) {
-  if (event.origin !== window.location.origin) return
-  const { type, toolId, data } = event.data ?? {}
+async function handleSavedataMessage(payload: any, source: Window | null) {
+  const { type, toolId, data } = payload ?? {}
 
   if (type === 'savedata:snapshot') {
     if (data && Object.keys(data).length > 0 && savedataStore.getCached(toolId) === null) savedataStore.setCached(toolId, data)
   } else if (type === 'savedata:request') {
     const saved = await getSavedata(toolId)
-    iframeEl.value?.contentWindow?.postMessage({ type: 'savedata:load', data: saved ?? {} }, '*')
+    source?.postMessage({ type: 'savedata:load', data: saved ?? {} }, window.location.origin)
   } else if (type === 'savedata:save') {
     savedataStore.setCached(toolId, data)
   }
+}
+
+function onMessage(event: MessageEvent) {
+  if (event.origin !== window.location.origin) return
+  handleSavedataMessage(event.data, event.source as Window | null)
 }
 
 watch(() => toolStore.activeTool, (tool) => {
@@ -73,6 +76,7 @@ onUnmounted(() => {
 
 function openExternal() {
   const w = window.open()!
+  const tool = toolStore.activeTool!
 
   w.document.body.style.margin = "0";
   w.document.body.style.padding = "0";
@@ -82,8 +86,14 @@ function openExternal() {
   iframe.style.width = "100%";
   iframe.style.height = "100%";
   iframe.style.border = "none";
-  iframe.src = `/api/res/${toolStore.activeTool!.id}/index.html`
-  
+
+  w.addEventListener('message', (e: MessageEvent) => {
+    if (e.origin !== window.location.origin) return
+    if (e.source !== iframe.contentWindow) return
+    handleSavedataMessage(e.data, iframe.contentWindow)
+  })
+
+  iframe.src = `/api/res/${tool.id}/index.html`
   w.document.body.appendChild(iframe)
 }
 
@@ -156,7 +166,6 @@ const featuredTools = computed(() => visibleTools.value.filter((tool: Tool) => t
     <div ref="iframeContainer" class="flex-1 min-h-0 flex items-center justify-center overflow-hidden bg-black">
       <iframe
         v-if="toolStore.activeTool"
-        ref="iframeEl"
         :key="toolStore.activeTool.id"
         :src="`/api/res/${toolStore.activeTool.id}/index.html`"
         class="border-none w-full h-full"
