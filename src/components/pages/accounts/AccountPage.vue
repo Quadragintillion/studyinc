@@ -291,7 +291,7 @@ function handleReset() {
               class="styled-input px-4 py-2 rounded-lg bg-slate-700 outline-none w-full"
               :disabled="jailBusy"
             >
-              <option value="">Release (no jail)</option>
+              <option value="none">Release (no jail)</option>
               <option value="regular">regular</option>
               <option value="baby">baby</option>
             </select>
