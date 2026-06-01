@@ -5,7 +5,7 @@ import SidebarButton from './SidebarButton.vue';
 
 <template>
   <nav id="sidebar" class="styled-background full-height flex flex-col items-start p-2 gap-3 w-max rounded-3xl">
-    <img src="/favicon.ico" class="w-14 mb-4 aspect-square" />
+    <img src="/top-icon.ico" class="w-14 mb-4 aspect-square" />
     <SidebarButton name="Tools" pageName="Study Tools" icon-path="/icons/nav/tools.svg" />
     <SidebarButton name="Calculator" pageName="Calculator" icon-path="/icons/nav/calculator.svg" />
     <SidebarButton name="Notes" pageName="Notes" icon-path="/icons/nav/notes.svg" />
