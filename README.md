@@ -40,4 +40,8 @@ The site should now technically "work", but it won't have any games or anything.
 4. Add your game to index.json. You need to encrypt the title using the enc.py program and, if you want to, put a fake title like "rawTitle," which can trick AI models into not thinking it's necessary to decode the title. An example index.json is also in the "installation" folder in this repo. Some games will look weird unless you specify an aspect ratio, though typically you don't need to specify one.
 5. Add a 3:4 vertical thumbnail for the game at `/opt/studyinc/games/repos/thumbs/[id]/vert.jpg`. You can easily find vertical thumbnails at [SteamGridDB](https://www.steamgriddb.com/), or just make them yourself if they don't have one
 
+## MOTD
+
+Simplest thing, literally just make a file at `/opt/studyinc/api/motd/index.html` and write whatever message you want
+
 # All the other setup steps are in the READMEs of the repos listed near the top
