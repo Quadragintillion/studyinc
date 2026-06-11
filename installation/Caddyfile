@@ -1,0 +1,179 @@
+# shared snippet
+(studyinc_common) {
+	@html_og {
+		path *.html *.htm /
+	}
+	replace @html_og {
+		"OG_IMAGE_URL_REALNOTFAKE" "https://{http.request.host}/og-image.png"
+		"OG_URL_EVENMORENOTFAKE" "https://{http.request.host}{http.request.uri}"
+	}
+
+	tls {
+		on_demand
+	}
+
+	@dotfiles {
+		path_regexp ^/api/res/\.
+	}
+	respond @dotfiles 404
+
+	handle /api/res/* {
+		root * /opt/studyinc/games/res
+		header Cross-Origin-Opener-Policy same-origin
+		header Cross-Origin-Embedder-Policy require-corp
+		uri strip_prefix /api/res
+		templates
+		@html {
+			path *.html
+		}
+		header @html Content-Type "text/html; charset=utf-8"
+		replace @html "<head>" "<head><script src=\"/savedata-bridge.js\"></script>"
+		file_server
+	}
+
+	handle /api/accs* {
+		reverse_proxy http://127.0.0.1:4892 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			transport http {
+				dial_timeout 90s
+				response_header_timeout 90s
+			}
+		}
+	}
+
+	handle /api/save* {
+		reverse_proxy http://127.0.0.1:4893 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			transport http {
+				dial_timeout 90s
+				response_header_timeout 90s
+			}
+		}
+	}
+
+	handle /api/olu* {
+		uri strip_prefix /api/olu
+		reverse_proxy http://127.0.0.1:11000 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			transport http {
+				keepalive 5s
+				keepalive_idle_conns 10
+				max_conns_per_host 50
+				dial_timeout 90s
+				response_header_timeout 90s
+			}
+		}
+	}
+
+	handle /api/calc* {
+		@notpost {
+			not method POST
+		}
+		respond @notpost `{"error":"stoobid"}` 400
+		reverse_proxy http://127.0.0.1:4894 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	handle /api/mx* {
+		uri strip_prefix /api/mx
+		root * /opt/studyinc/api/cinny/dist
+		header Cross-Origin-Opener-Policy same-origin
+		header Cross-Origin-Embedder-Policy require-corp
+		try_files {path} /index.html
+		file_server
+	}
+
+	handle /wisp* {
+		reverse_proxy http://127.0.0.1:39047 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+			header_up Upgrade {http.request.header.Upgrade}
+			header_up Connection "Upgrade"
+			transport http {
+				versions 1.1
+			}
+		}
+	}
+
+	@scramjet-sw {
+		path = /api/notes-s/scramjet-sw.js
+	}
+	handle @scramjet-sw {
+		header Service-Worker-Allowed /api/notes/
+		header Cross-Origin-Opener-Policy same-origin
+		header Cross-Origin-Embedder-Policy require-corp
+		file_server
+	}
+
+	handle /api/srv/sio* {
+		reverse_proxy http://127.0.0.1:5510
+	}
+
+	handle /api/motd {
+		uri strip_prefix /api/motd
+		root * /opt/studyinc/api/motd
+		file_server
+	}
+
+	handle /files/* {
+		uri strip_prefix /files/
+		root * /var/www/fileshare
+		file_server
+	}
+}
+
+studyinc.org {
+	root * /var/www/studyinc.org
+
+	handle /wp-json/contact-form-7/* {
+		reverse_proxy http://127.0.0.1:33717 {
+			header_up Host {host}
+			header_up X-Real-IP {remote_host}
+		}
+	}
+
+	handle {
+		file_server
+	}
+}
+
+mx.studyinc.org {
+	reverse_proxy localhost:8008
+}
+
+verify.studyinc.org {
+	reverse_proxy localhost:3113 {
+		header_up X-Forwarded-For {http.request.header.CF-Connecting-IP}
+	}
+}
+
+tickets.studyinc.org {
+	reverse_proxy localhost:8169
+}
+
+test.lord.business {
+	root * /opt/studyinc/frontend-testing
+	import studyinc_common
+	handle {
+		header Cross-Origin-Opener-Policy same-origin
+		header Cross-Origin-Embedder-Policy require-corp
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}
+
+https:// {
+	root * /opt/studyinc/frontend
+	import studyinc_common
+	handle {
+		header Cross-Origin-Opener-Policy same-origin
+		header Cross-Origin-Embedder-Policy require-corp
+		try_files {path} {path}/ /index.html
+		file_server
+	}
+}
