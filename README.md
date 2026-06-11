@@ -8,6 +8,7 @@ This repository does not include several elements, including:
 - The AI ("calculator") endpoint (available [here](https://codeberg.org/dragin/studyinc-calc))
 - The accounts backend (available [here](https://codeberg.org/PlatinumLabs/amethyst))
 - The savedata endpoint (available [here](https://codeberg.org/dragin/studyinc-save))
+- The site chat (available [here](https://codeberg.org/dragin/cinny-amethyst))
 
 # Self-Hosting
 
